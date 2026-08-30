@@ -1,0 +1,10 @@
+.login-page { min-height: 100vh; box-sizing: border-box; padding: 110px 40px 48px; background: linear-gradient(145deg, #fffaf5, #fff1ea); }
+.brand-orb { width: 150px; height: 150px; margin: 0 auto 28px; border-radius: 50%; text-align: center; line-height: 150px; font-size: 76px; background: #ffdbc9; box-shadow: 0 16px 48px rgba(155, 69, 0, .12); }
+.brand-name, .slogan, .mock-tip { display: block; text-align: center; }
+.brand-name { font-size: 58px; font-weight: 800; color: #9b4500; }
+.slogan { margin-top: 12px; color: #7a665c; }
+.login-card { margin-top: 56px; padding: 40px 32px; border-radius: 44px; background: rgba(255,255,255,.9); box-shadow: 0 20px 60px rgba(80,40,20,.08); }
+.mock-tip { margin-top: 24px; color: #7a665c; font-size: 24px; }
+.login-links { display: flex; justify-content: space-between; margin-top: 24px; color: #9b4500; font-size: 24px; font-weight: 700; }
+.privacy-link { display: block; min-height: 70px; color: #7a665c; text-align: center; font-size: 22px; line-height: 70px; text-decoration: underline; }
+.login-notice{display:block;margin-bottom:24px;padding:18px 22px;border-radius:20px;color:#7b4a10;background:#fff1ce;font-size:23px;line-height:1.5}

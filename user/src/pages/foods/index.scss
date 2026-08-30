@@ -1,0 +1,28 @@
+.foods-page { padding-top: 0; }
+.search-box { display: flex; align-items: center; height: 92px; padding: 0 24px; border: 2px solid #ead5ca; border-radius: 28px; background: #fff; }
+.search-icon { color: #a94700; font-size: 36px; }
+.search-input { flex: 1; height: 88px; padding-left: 16px; font-size: 28px; }
+.filter-card { padding: 26px; background: #fffaf6; }
+.filter-toggle { display: flex; align-items: center; justify-content: space-between; min-height: 64px; }
+.filter-title { font-size: 30px; font-weight: 900; }
+.filter-summary { display: block; margin-top: 6px; color: #806c62; font-size: 22px; }
+.filter-arrow { color: #a94700; font-size: 24px; font-weight: 800; }
+.filter-body { margin-top: 22px; padding-top: 22px; border-top: 2px solid #f0ded5; }
+.filter-body .search-box { margin-bottom: 8px; }
+.filter-label { display: block; margin: 24px 0 14px; color: #5e493f; font-size: 24px; font-weight: 800; }
+.tag-heading { align-items: flex-end; }
+.tag-heading .filter-label { margin-bottom: 14px; }
+.filter-result { display: block; margin-top: 22px; color: #7c675d; font-size: 23px; }
+.food-list { margin-top: 22px; }
+.food-card { display: flex; align-items: flex-start; gap: 18px; margin-bottom: 16px; padding: 23px; }
+.food-avatar { display: flex; align-items: center; justify-content: center; flex: 0 0 78px; height: 78px; border-radius: 25px; color: #a94700; background: #ffe6d8; font-size: 31px; font-weight: 900; }
+.food-content { flex: 1; min-width: 0; }
+.food-name { overflow: hidden; font-size: 29px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+.food-price { color: #a94700; font-size: 27px; font-weight: 900; }
+.food-category { display: block; margin-top: 5px; color: #806c62; font-size: 22px; }
+.food-tags { margin-top: 12px; gap: 8px; }
+.food-buttons { display: flex; gap: 12px; margin-top: 20px; }
+.food-buttons .mini-button { flex: 1; min-width: 0; }
+.edit-food { color: #a94700; background: #fff0e8; }
+.delete-food { flex: 0 0 110px !important; color: #b42318; background: #ffe9e5; }
+.add-food-button { position: fixed; z-index: 40; right: 46px; bottom: calc(164px + env(safe-area-inset-bottom)); height: 90px; padding: 0 30px; border-radius: 999px; color: #fff; background: #a94700; box-shadow: 0 14px 34px rgba(169,71,0,.25); font-size: 27px; font-weight: 800; line-height: 90px; }

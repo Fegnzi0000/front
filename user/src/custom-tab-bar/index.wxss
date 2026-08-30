@@ -1,0 +1,51 @@
+.custom-tabbar {
+  position: fixed;
+  z-index: 80;
+  right: 18rpx;
+  bottom: 0;
+  left: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  box-sizing: border-box;
+  min-height: calc(118rpx + env(safe-area-inset-bottom));
+  padding: 8rpx 10rpx calc(8rpx + env(safe-area-inset-bottom));
+  border: 2rpx solid rgba(223, 197, 184, .85);
+  border-radius: 42rpx;
+  background: rgba(255, 250, 247, .96);
+  box-shadow: 0 16rpx 50rpx rgba(100, 50, 25, .14);
+}
+.tab-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 92rpx;
+  color: #806c62;
+  border-radius: 30rpx;
+}
+.tab-item.active {
+  z-index: 1;
+  height: 108rpx;
+  color: #fff;
+  background: #a94700;
+  box-shadow: 0 12rpx 30rpx rgba(169, 71, 0, .28);
+  transform: translateY(-16rpx);
+}
+.tab-item.center-item.active { background: #ff8243; }
+.tab-text { margin-top: 7rpx; font-size: 21rpx; font-weight: 700; }
+.tab-icon { position: relative; box-sizing: border-box; width: 42rpx; height: 42rpx; }
+.icon-home::before { content: ''; position: absolute; left: 8rpx; top: 9rpx; width: 24rpx; height: 24rpx; border: 4rpx solid currentColor; border-radius: 5rpx; transform: rotate(45deg); }
+.icon-home::after { content: ''; position: absolute; left: 9rpx; top: 20rpx; width: 25rpx; height: 21rpx; border: 4rpx solid currentColor; border-top: 0; }
+.icon-foods::before { content: ''; position: absolute; left: 3rpx; top: 4rpx; width: 35rpx; height: 35rpx; border: 4rpx solid currentColor; border-radius: 50%; }
+.icon-foods::after { content: ''; position: absolute; left: 11rpx; top: 19rpx; width: 21rpx; height: 4rpx; border-radius: 4rpx; background: currentColor; }
+.icon-slot { width: 48rpx; height: 43rpx; border: 4rpx solid currentColor; border-radius: 10rpx; }
+.icon-slot::before { content: ''; position: absolute; left: 7rpx; top: 9rpx; width: 7rpx; height: 14rpx; border-radius: 4rpx; background: currentColor; box-shadow: 13rpx 0 0 currentColor, 26rpx 0 0 currentColor; }
+.icon-slot::after { content: ''; position: absolute; left: 8rpx; right: 8rpx; bottom: 5rpx; height: 4rpx; background: currentColor; }
+.icon-record { border: 4rpx solid currentColor; border-radius: 7rpx; }
+.icon-record::before { content: ''; position: absolute; left: 8rpx; right: 8rpx; top: 10rpx; height: 4rpx; border-radius: 4rpx; background: currentColor; box-shadow: 0 10rpx 0 currentColor, 0 20rpx 0 currentColor; }
+.icon-profile::before { content: ''; position: absolute; left: 13rpx; top: 2rpx; width: 15rpx; height: 15rpx; border: 4rpx solid currentColor; border-radius: 50%; }
+.icon-profile::after { content: ''; position: absolute; left: 5rpx; bottom: 1rpx; width: 30rpx; height: 18rpx; border: 4rpx solid currentColor; border-radius: 20rpx 20rpx 8rpx 8rpx; }

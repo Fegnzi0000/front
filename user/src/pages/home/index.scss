@@ -1,0 +1,18 @@
+.home-page { padding-top: 0; }
+.budget-hero { padding: 32px; border: 2px solid #ead0c2; border-radius: 42px; background: linear-gradient(140deg,#fff,#fff0e6); box-shadow: 0 18px 46px rgba(135,61,20,.09); }
+.budget-label { color: #634b40; font-size: 28px; font-weight: 800; }
+.budget-edit,.text-link { color: #a94700; font-size: 24px; font-weight: 700; }
+.budget-value { display: block; margin: 18px 0 20px; color: #a94700; font-size: 66px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.budget-empty { font-size: 44px; }
+.budget-track { height: 16px; overflow: hidden; border-radius: 999px; background: #f0dfd7; }
+.budget-progress { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#ff9b62,#e8661e); transition: width .25s ease; }
+.budget-meta { margin-top: 14px; color: #806c62; font-size: 22px; }
+.budget-over .budget-value { color: #b42318; }
+.budget-over .budget-label { color: #b42318; }
+.budget-over .budget-progress { background: #d94b3d; }
+.history-head { align-items: flex-end; margin: 8px 0 20px; }
+.history-head .section-title { margin-bottom: 6px; }
+.record-row { display: flex; align-items: center; gap: 18px; margin-bottom: 16px; padding: 22px; }
+.record-copy { flex: 1; min-width: 0; }
+.record-row .price { font-size: 29px; }
+.home-empty { padding: 64px 24px; }
