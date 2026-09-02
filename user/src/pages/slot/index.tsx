@@ -10,6 +10,7 @@ import {
   getSlotRevealDelay,
   getSlotSoundCommand,
   inferMealType,
+  getShanghaiDateTime,
   nextSlotStage,
   shouldHideTabBar,
   type MealType,
@@ -40,10 +41,10 @@ export default function SlotPage() {
   const [price, setPrice] = useState('')
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const audio = useRef<ReturnType<typeof Taro.createInnerAudioContext> | null>(null)
-  const initialNow = new Date().toISOString()
-  const [date, setDate] = useState(initialNow.slice(0, 10))
-  const [time, setTime] = useState(initialNow.slice(11, 16))
-  const [mealType, setMealType] = useState<MealType>(inferMealType(new Date().getHours()))
+  const initialNow = getShanghaiDateTime()
+  const [date, setDate] = useState(initialNow.date)
+  const [time, setTime] = useState(initialNow.time)
+  const [mealType, setMealType] = useState<MealType>(inferMealType(initialNow.hour))
   const [soundEnabled, setSoundEnabled] = useState(Boolean(Taro.getStorageSync('ai-ganfan.sound')))
   const { showPaylines } = getSlotMachinePresentation()
   const stopDelays = getSlotReelStopDelays()
@@ -146,7 +147,7 @@ export default function SlotPage() {
 
     {(stage === 'RESULT' || stage === 'CONFIRM' || stage === 'SUCCESS') && spin && <View className='sheet-mask'><View className={`sheet ${stage === 'CONFIRM' ? 'confirm-sheet' : ''}`}><View className='sheet-handle' />
       {stage === 'RESULT' && <><View className='row'><View><Text className='result-kicker'>本次抽中</Text><Text className='result-title'>{spin.food.name}</Text></View><View className='sheet-close' onClick={close}>×</View></View><View className='result-symbol'>{foodGlyph(spin.food.category)}</View><View className='chips result-tags'><Text className='chip chip-active'>{spin.food.category}</Text>{spin.food.tags.map((tag) => <Text className='chip' key={tag}>{tag}</Text>)}</View><View className='reference-price'><Text>参考价格</Text><Text className='price'>¥{spin.food.defaultPrice}</Text></View><Button className='primary-button' onClick={() => move('CONFIRM_CHOICE')}>就吃这个</Button><Button className='secondary-button' disabled={foods.length < 2} onClick={() => start(true)}>再转一次</Button><Text className='cancel-link' onClick={close}>不想选了，关闭结果</Text></>}
-      {stage === 'CONFIRM' && <><View className='row'><View className='topbar-back' onClick={() => move('BACK')}>‹</View><Text className='sheet-title'>确认饮食记录</Text><View className='sheet-close' onClick={close}>×</View></View><Text className='confirm-food'>{spin.food.name}</Text><Text className='label'>餐次</Text><View className='chips meal-chips'>{meals.map((meal) => <Text key={meal.value} className={`chip ${mealType === meal.value ? 'chip-active' : ''}`} onClick={() => setMealType(meal.value)}>{meal.label}</Text>)}</View><View className='field'><Text className='label'>实际花费</Text><Input className='input' type='digit' value={price} onInput={(event) => setPrice(event.detail.value)} /></View><View className='date-row'><Picker mode='date' value={date} end={initialNow.slice(0, 10)} onChange={(event) => setDate(String(event.detail.value))}><View className='picker-box'><Text className='label'>日期</Text><Text>{date}</Text></View></Picker><Picker mode='time' value={time} onChange={(event) => setTime(String(event.detail.value))}><View className='picker-box'><Text className='label'>时间</Text><Text>{time}</Text></View></Picker></View><Button className='primary-button' onClick={save}>确认记录</Button></>}
+      {stage === 'CONFIRM' && <><View className='row'><View className='topbar-back' onClick={() => move('BACK')}>‹</View><Text className='sheet-title'>确认饮食记录</Text><View className='sheet-close' onClick={close}>×</View></View><Text className='confirm-food'>{spin.food.name}</Text><Text className='label'>餐次</Text><View className='chips meal-chips'>{meals.map((meal) => <Text key={meal.value} className={`chip ${mealType === meal.value ? 'chip-active' : ''}`} onClick={() => setMealType(meal.value)}>{meal.label}</Text>)}</View><View className='field'><Text className='label'>实际花费</Text><Input className='input' type='digit' value={price} onInput={(event) => setPrice(event.detail.value)} /></View><View className='date-row'><Picker mode='date' value={date} end={initialNow.date} onChange={(event) => setDate(String(event.detail.value))}><View className='picker-box'><Text className='label'>日期</Text><Text>{date}</Text></View></Picker><Picker mode='time' value={time} onChange={(event) => setTime(String(event.detail.value))}><View className='picker-box'><Text className='label'>时间</Text><Text>{time}</Text></View></Picker></View><Button className='primary-button' onClick={save}>确认记录</Button></>}
       {stage === 'SUCCESS' && <View className='success-state'><View className='success-check'>✓</View><Text className='result-title'>记录好了</Text><Text className='muted'>祝你吃得开心，也吃得明白</Text></View>}
     </View></View>}
   </View>

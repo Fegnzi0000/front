@@ -8,6 +8,7 @@ import {
   cloneDietFilter,
   getCurrentWeekRange,
   getHistoryStatisticsRanges,
+  getShanghaiMonthRange,
   getRecordCountPresentation,
   type DietFilter,
 } from '../../domain/core'
@@ -31,11 +32,7 @@ function emptyStatistics(): StatisticsData {
 }
 
 function monthRange() {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const last = new Date(year, now.getMonth() + 1, 0).getDate()
-  return { start: `${year}-${month}-01`, end: `${year}-${month}-${last}` }
+  return getShanghaiMonthRange()
 }
 
 function WeeklyTrendChart({ points }: { points: Array<{ period: string; label: string; totalSpent: string }> }) {

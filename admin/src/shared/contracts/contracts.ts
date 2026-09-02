@@ -1,5 +1,9 @@
 import { z } from 'zod'
 
+/** 后端时间字段当前输出 Unix 秒数；前端统一转换成 ISO 字符串供 dayjs 和页面使用。 */
+const dateTimeSchema = z.union([z.iso.datetime(), z.number().finite()])
+  .transform((value) => typeof value === 'number' ? new Date(value * 1000).toISOString() : value)
+
 export const roleSchema = z.enum(['USER', 'ADMIN'])
 export const userStatusSchema = z.enum(['ACTIVE', 'DISABLED', 'CANCELLED'])
 export const auditResultSchema = z.enum(['SUCCESS', 'FAILURE'])
@@ -48,8 +52,8 @@ export const adminUserSchema = z.object({
   status: userStatusSchema,
   onboardingCompleted: z.boolean(),
   mustChangePassword: z.boolean(),
-  createdAt: z.iso.datetime(),
-  lastLoginAt: z.iso.datetime().nullable(),
+  createdAt: dateTimeSchema,
+  lastLoginAt: dateTimeSchema.nullable(),
 })
 
 export const pageSchema = <T extends z.ZodType>(itemSchema: T) => z.object({
@@ -86,24 +90,28 @@ export const dashboardDataSchema = z.object({
 
 export const temporaryPasswordDataSchema = z.object({
   temporaryPassword: z.string().min(1),
-  expiresAt: z.iso.datetime(),
+  expiresAt: dateTimeSchema,
 })
 
-export const auditAccountSchema = z.object({
-  id: z.string(),
+export const auditAdminSchema = z.object({
+  account: z.string().nullable(),
+  nickname: z.string().nullable(),
+})
+
+export const auditTargetUserSchema = z.object({
   email: z.email().nullable(),
   nickname: z.string().nullable(),
 })
 
 export const auditLogSchema = z.object({
   id: z.string(),
-  admin: auditAccountSchema,
-  targetUser: auditAccountSchema.nullable(),
+  admin: auditAdminSchema,
+  targetUser: auditTargetUserSchema.nullable(),
   action: auditActionSchema,
   result: auditResultSchema,
   requestId: z.string().nullable(),
   detail: z.record(z.string(), z.string()),
-  createdAt: z.iso.datetime(),
+  createdAt: dateTimeSchema,
 })
 
 export const apiSuccessSchema = <T extends z.ZodType>(schema: T) => z.object({

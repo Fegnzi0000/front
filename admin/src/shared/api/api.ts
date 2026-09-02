@@ -19,13 +19,13 @@ export type UserListQuery = {
   registeredStartDate?: string; registeredEndDate?: string; page?: number; size?: number
 }
 export type AuditQuery = {
-  adminUserId?: string; targetUserId?: string; action?: AuditAction; result?: AuditResult
+  adminAccount?: string; targetUserEmail?: string; targetUserNickname?: string; action?: AuditAction; result?: AuditResult
   startDate?: string; endDate?: string; page?: number; size?: number
 }
 
 export const api = {
-  login: (email: string, password: string) => apiRequest('POST', '/auth/login', authDataSchema, {
-    anonymous: true, retry401: false, body: { email, password },
+  login: (account: string, password: string) => apiRequest('POST', '/admin/auth/login', authDataSchema, {
+    anonymous: true, retry401: false, body: { account, password },
   }),
   me: () => apiRequest('GET', '/users/me', currentUserSchema),
   changePassword: (currentPassword: string, newPassword: string, confirmNewPassword: string) =>

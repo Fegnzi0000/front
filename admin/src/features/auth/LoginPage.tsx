@@ -1,11 +1,11 @@
-import { LockOutlined, MailOutlined, SafetyCertificateOutlined } from '@ant-design/icons'
+import { LockOutlined, SafetyCertificateOutlined, UserOutlined } from '@ant-design/icons'
 import { Alert, Button, Card, Form, Input, Typography } from 'antd'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { ApiClientError } from '../../shared/api/client'
 import { useAuth } from './AuthContext'
 
-type LoginForm = { email: string; password: string }
+type LoginForm = { account: string; password: string }
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -18,7 +18,7 @@ export default function LoginPage() {
     setError(null)
     setLoading(true)
     try {
-      const destination = await login(values.email, values.password)
+      const destination = await login(values.account, values.password)
       void navigate(destination === 'home' ? '/dashboard' : '/change-password', { replace: true })
     } catch (caught) {
       setError(caught instanceof ApiClientError ? caught.message : '登录失败，请稍后重试')
@@ -41,11 +41,11 @@ export default function LoginPage() {
       </section>
       <Card className="login-card" variant="borderless">
         <Typography.Title level={2}>管理员登录</Typography.Title>
-        <Typography.Paragraph type="secondary">请使用已授权的管理员邮箱登录</Typography.Paragraph>
+        <Typography.Paragraph type="secondary">请使用已授权的管理员账号登录</Typography.Paragraph>
         {error && <Alert type="error" showIcon title={error} className="form-alert" />}
         <Form<LoginForm> layout="vertical" onFinish={(values) => { void submit(values) }} requiredMark={false}>
-          <Form.Item label="邮箱" name="email" rules={[{ required: true, message: '请输入邮箱' }, { type: 'email', message: '邮箱格式不正确' }]}>
-            <Input prefix={<MailOutlined />} autoComplete="username" placeholder="admin@example.com" size="large" />
+          <Form.Item label="账号" name="account" rules={[{ required: true, message: '请输入管理员账号' }, { pattern: /^[A-Za-z][A-Za-z0-9_]{2,31}$/, message: '账号为 3–32 位字母、数字或下划线，且以字母开头' }]}>
+            <Input prefix={<UserOutlined />} autoComplete="username" placeholder="admin" size="large" />
           </Form.Item>
           <Form.Item label="密码" name="password" rules={[{ required: true, message: '请输入密码' }, { pattern: /^[A-Za-z0-9_]{6,20}$/, message: '密码为 6–20 位字母、数字或下划线' }]}>
             <Input.Password prefix={<LockOutlined />} autoComplete="current-password" size="large" />

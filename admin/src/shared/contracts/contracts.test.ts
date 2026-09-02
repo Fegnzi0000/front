@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
-import { apiSuccessSchema, currentUserSchema, dashboardDataSchema } from './contracts'
+import { adminUserSchema, apiSuccessSchema, auditLogSchema, currentUserSchema, dashboardDataSchema } from './contracts'
 
 describe('API contracts', () => {
   it('rejects product roles outside USER and ADMIN', () => {
@@ -32,5 +32,21 @@ describe('API contracts', () => {
       timestamp: 1787356800.0,
     })
     expect(result.success).toBe(true)
+  })
+
+  it('converts backend Unix-second timestamps used by administrator lists', () => {
+    const user = adminUserSchema.parse({
+      id: '123e4567-e89b-12d3-a456-426614174000', email: 'demo.user01@local.test', nickname: '联调用户1',
+      role: 'USER', status: 'ACTIVE', onboardingCompleted: true, mustChangePassword: false,
+      createdAt: 1788139800, lastLoginAt: 1788143400,
+    })
+    const audit = auditLogSchema.parse({
+      id: '123e4567-e89b-12d3-a456-426614174001',
+      admin: { account: 'admin', nickname: '本地管理员' },
+      targetUser: null, action: 'USER_DISABLED', result: 'SUCCESS', requestId: null,
+      detail: { before: 'ACTIVE', after: 'DISABLED' }, createdAt: 1788105852.921,
+    })
+    expect(user.createdAt).toBe('2026-08-31T01:30:00.000Z')
+    expect(audit.createdAt).toBe('2026-08-30T16:04:12.921Z')
   })
 })

@@ -14,6 +14,8 @@ import {
   filterFoodOptions,
   getBudgetPresentation,
   getCurrentWeekRange,
+  getShanghaiDateTime,
+  getShanghaiMonthRange,
   getProfileFoodActions,
   getSlotReelStopDelays,
   getSlotRevealDelay,
@@ -163,6 +165,14 @@ describe('home budget overview', () => {
       amountLabel: '',
       amount: '20.00',
     })
+  })
+})
+
+describe('Shanghai business time', () => {
+  it('uses China time instead of UTC when crossing midnight', () => {
+    const now = new Date('2026-09-02T16:15:00.000Z')
+    expect(getShanghaiDateTime(now)).toEqual({ date: '2026-09-03', time: '00:15', hour: 0 })
+    expect(getShanghaiMonthRange(now)).toEqual({ start: '2026-09-01', end: '2026-09-30' })
   })
 })
 

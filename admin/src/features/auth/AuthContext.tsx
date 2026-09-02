@@ -10,7 +10,7 @@ type AuthContextValue = {
   status: AuthStatus
   user: CurrentUser | null
   notice: string | null
-  login: (email: string, password: string) => Promise<'home' | 'change-password'>
+  login: (account: string, password: string) => Promise<'home' | 'change-password'>
   changePassword: (current: string, next: string, confirm: string) => Promise<void>
   logout: () => Promise<void>
   clearNotice: () => void
@@ -61,8 +61,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
     return () => { active = false }
   }, [clearSession])
 
-  const login = useCallback(async (email: string, password: string) => {
-    const data = await api.login(email, password)
+  const login = useCallback(async (account: string, password: string) => {
+    const data = await api.login(account, password)
     if (data.user.role !== 'ADMIN') {
       clearSession('该账号不是管理员')
       throw new ApiClientError(403, 'AUTH_FORBIDDEN', '该账号不是管理员')

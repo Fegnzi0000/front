@@ -183,6 +183,31 @@ export function getBudgetPresentation(overview: ReturnType<typeof calculateBudge
   return { label: '今日剩余预算', amountLabel: '', amount: overview.remaining }
 }
 
+export const BUSINESS_TIME_ZONE = 'Asia/Shanghai'
+
+/** 返回统一的中国业务日期与时间；页面不得直接从UTC ISO字符串截取日期或小时。 */
+export function getShanghaiDateTime(now = new Date()): { date: string; time: string; hour: number } {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: BUSINESS_TIME_ZONE,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(now)
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
+  return {
+    date: `${values.year}-${values.month}-${values.day}`,
+    time: `${values.hour}:${values.minute}`,
+    hour: Number(values.hour),
+  }
+}
+
+export function getShanghaiMonthRange(now = new Date()): { start: string; end: string } {
+  const { date } = getShanghaiDateTime(now)
+  const [year, month] = date.split('-').map(Number)
+  const lastDay = new Date(year, month, 0).getDate()
+  const monthText = String(month).padStart(2, '0')
+  return { start: `${year}-${monthText}-01`, end: `${year}-${monthText}-${lastDay}` }
+}
+
 function localDateText(value: Date): string {
   return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`
 }
@@ -193,7 +218,8 @@ function parseLocalDate(value: string): Date {
 }
 
 export function getCurrentWeekRange(now = new Date()): { start: string; end: string } {
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const [year, month, day] = getShanghaiDateTime(now).date.split('-').map(Number)
+  const today = new Date(year, month - 1, day)
   const mondayOffset = (today.getDay() + 6) % 7
   const start = new Date(today)
   start.setDate(today.getDate() - mondayOffset)

@@ -3,7 +3,7 @@ import Taro, { useDidShow } from '@tarojs/taro'
 import { useState } from 'react'
 
 import { foodGlyph, PageHeader } from '../../components/ui'
-import { calculateBudgetOverview, calculateDietSummary, getBudgetPresentation } from '../../domain/core'
+import { calculateBudgetOverview, calculateDietSummary, getBudgetPresentation, getShanghaiDateTime } from '../../domain/core'
 import { api, type DietRecord, type Preferences, type User } from '../../services/api'
 import { syncCustomTabBar } from '../../domain/tabbar'
 import './index.scss'
@@ -13,7 +13,7 @@ export default function HomePage() {
   const [user, setUser] = useState<User | null>(null)
   const [preferences, setPreferences] = useState<Preferences | null>(null)
   const [todayRecords, setTodayRecords] = useState<DietRecord[]>([])
-  const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Shanghai' })
+  const today = getShanghaiDateTime().date
   const load = async () => { try { const [nextUser, nextPreferences, records] = await Promise.all([api.me(), api.preferences(), api.records({ startDate: today, endDate: today, size: 100 })]); setUser(nextUser); setPreferences(nextPreferences); setTodayRecords(records.items) } catch (error) { Taro.showToast({ title: error instanceof Error ? error.message : '加载失败', icon: 'none' }) } }
   useDidShow(() => { syncCustomTabBar(0); load(); refresh((value) => value + 1) })
   const summary = calculateDietSummary(todayRecords)
