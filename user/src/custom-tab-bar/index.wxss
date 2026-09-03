@@ -1,9 +1,9 @@
 .custom-tabbar {
-  position: fixed;
-  z-index: 80;
-  right: 18rpx;
-  bottom: 0;
-  left: 18rpx;
+  /* 该组件已由微信放入原生 TabBar 容器；不能 fixed 浮出容器，
+     否则会覆盖在原生文字标签上，形成两行导航。 */
+  position: relative;
+  width: calc(100% - 36rpx);
+  margin: 0 18rpx;
   display: flex;
   align-items: center;
   justify-content: space-around;

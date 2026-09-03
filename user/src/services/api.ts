@@ -24,7 +24,7 @@ export class ApiError extends Error {
   constructor(public readonly statusCode: number, public readonly body: ApiErrorBody) { super(body.message) }
 }
 
-export interface User { id: string; email: string; nickname: string; avatarUrl: string | null; role: 'USER' | 'ADMIN' | 'SUPER_ADMIN'; status: 'ACTIVE' | 'DISABLED' | 'CANCELLED'; onboardingCompleted: boolean; mustChangePassword: boolean }
+export interface User { id: string; email: string | null; nickname: string; avatarUrl: string | null; role: 'USER' | 'ADMIN' | 'SUPER_ADMIN'; status: 'ACTIVE' | 'DISABLED' | 'CANCELLED'; onboardingCompleted: boolean; mustChangePassword: boolean }
 export interface AuthData { accessToken: string; accessTokenExpiresIn: number; refreshToken: string; refreshTokenExpiresIn: number; user: User; nextStep: 'ONBOARDING' | 'HOME' | 'ADMIN_HOME' | 'CHANGE_PASSWORD' }
 export interface FoodOption { id: string; name: string; category: string; defaultPrice: string; tags: string[]; source: 'DEFAULT' | 'CUSTOM' }
 export interface FoodSnapshot { foodOptionId: string; name: string; category: string | null; defaultPrice: string; tags: string[] }
@@ -53,9 +53,26 @@ function makeUrl(path: string, query?: Record<string, string | number | boolean 
   return `${API_BASE_URL}${path}${pairs.length ? `?${pairs.join('&')}` : ''}`
 }
 
+function requestFailureMessage(error: unknown) {
+  if (error instanceof Error && error.message) return error.message
+  if (typeof error === 'object' && error !== null && 'errMsg' in error && typeof error.errMsg === 'string') return error.errMsg
+  return '网络请求失败'
+}
+
 async function rawRequest<T>(method: Taro.request.Option['method'], path: string, data?: unknown, query?: Record<string, string | number | boolean | undefined | string[]>): Promise<ApiEnvelope<T>> {
   const { accessToken } = tokens()
-  const response = await Taro.request<ApiEnvelope<T> | ApiErrorBody>({ url: makeUrl(path, query), method, data, timeout: 5000, header: { 'content-type': 'application/json', ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) } })
+  const url = makeUrl(path, query)
+  // 真机联调只记录方法与地址，绝不输出 Authorization、登录 code 或请求体。
+  console.info('[API] 发起请求', { method, url })
+  let response: Taro.request.SuccessCallbackResult<ApiEnvelope<T> | ApiErrorBody>
+  try {
+    response = await Taro.request<ApiEnvelope<T> | ApiErrorBody>({ url, method, data, timeout: 5000, header: { 'content-type': 'application/json', ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) } })
+  } catch (error) {
+    const message = requestFailureMessage(error)
+    console.error('[API] 请求未发出或网络失败', { method, url, message })
+    throw new Error(message)
+  }
+  console.info('[API] 收到响应', { method, url, statusCode: response.statusCode })
   if (response.statusCode >= 200 && response.statusCode < 300) return response.data as ApiEnvelope<T>
   throw new ApiError(response.statusCode, response.data as ApiErrorBody)
 }
@@ -101,6 +118,8 @@ async function request<T>(method: Taro.request.Option['method'], path: string, d
 export const api = {
   register: async (email: string, password: string, confirmPassword: string) => { const data = await request<AuthData>('POST', '/auth/register', { email, password, confirmPassword }); saveTokens(data); return data },
   login: async (email: string, password: string) => { const data = await request<AuthData>('POST', '/auth/login', { email, password }); saveTokens(data); return data },
+  weChatMiniProgramLogin: async (code: string) => { const data = await request<AuthData>('POST', '/auth/wechat/mini-program/login', { code }); saveTokens(data); return data },
+  bindWeChatMiniProgram: async (code: string, email: string, password: string) => { const data = await request<AuthData>('POST', '/auth/wechat/mini-program/bind', { code, email, password }); saveTokens(data); return data },
   logout: async () => { const { refreshToken } = tokens(); try { if (refreshToken) await request<Record<string, never>>('POST', '/auth/logout', { refreshToken }) } finally { clearTokens() } },
   me: () => request<User>('GET', '/users/me'),
   submitOnboarding: (data: { nickname: string | null; budgetEnabled: boolean; dailyBudget: string | null; medicalAllergies: PreferenceItem[]; dietaryRestrictions: PreferenceItem[]; dislikes: PreferenceItem[]; tastePreferences: PreferenceItem[] }) => request<User>('PUT', '/users/me/onboarding', data),

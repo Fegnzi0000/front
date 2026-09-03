@@ -1,10 +1,18 @@
 import { defineConfig, type UserConfigExport } from '@tarojs/cli'
+import { loadEnv } from 'vite'
 
 import devConfig from './dev'
 import prodConfig from './prod'
 
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
 export default defineConfig<'vite'>(async (merge) => {
+  const mode = process.env.NODE_ENV || 'development'
+  // Taro 配置在 Vite 环境文件加载之前执行，需在此显式读取本机 .env.local。
+  const environment = loadEnv(mode, process.cwd(), '')
+  const apiBaseUrl = environment.TARO_APP_API_BASE_URL
+    || process.env.TARO_APP_API_BASE_URL
+    || 'http://127.0.0.1:8080/api/v1'
+
   const baseConfig: UserConfigExport<'vite'> = {
     projectName: 'frontend',
     date: '2026-8-8',
@@ -21,7 +29,7 @@ export default defineConfig<'vite'>(async (merge) => {
       "@tarojs/plugin-generator"
     ],
     defineConstants: {
-      'process.env.TARO_APP_API_BASE_URL': JSON.stringify(process.env.TARO_APP_API_BASE_URL || 'http://127.0.0.1:8080/api/v1'),
+      'process.env.TARO_APP_API_BASE_URL': JSON.stringify(apiBaseUrl),
     },
     copy: {
       patterns: [
@@ -91,7 +99,7 @@ export default defineConfig<'vite'>(async (merge) => {
 
   process.env.BROWSERSLIST_ENV = process.env.NODE_ENV
 
-  if (process.env.NODE_ENV === 'development') {
+  if (mode === 'development') {
     // 本地开发构建配置（不混淆压缩）
     return merge({}, baseConfig, devConfig)
   }

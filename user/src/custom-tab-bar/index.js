@@ -28,7 +28,8 @@ Component({
   methods: {
     syncSelected() {
       const pages = getCurrentPages()
-      const route = `/${pages[pages.length - 1]?.route || ''}`.replace(/\/+$/, '')
+      const currentPage = pages[pages.length - 1]
+      const route = `/${currentPage && currentPage.route ? currentPage.route : ''}`.replace(/\/+$/, '')
       const selected = tabs.findIndex((tab) => tab.pagePath === route)
       // 没有匹配到主 Tab 时清空选中态，不能沿用默认“首页”。
       this.setData({ selected })

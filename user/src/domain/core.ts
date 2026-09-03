@@ -187,16 +187,18 @@ export const BUSINESS_TIME_ZONE = 'Asia/Shanghai'
 
 /** 返回统一的中国业务日期与时间；页面不得直接从UTC ISO字符串截取日期或小时。 */
 export function getShanghaiDateTime(now = new Date()): { date: string; time: string; hour: number } {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: BUSINESS_TIME_ZONE,
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-  }).formatToParts(now)
-  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
+  // 微信真机 JS 运行时可能没有 Intl。中国时区固定为 UTC+8 且不使用夏令时，
+  // 因此将时间戳偏移后用 UTC 字段读取，可保持 Asia/Shanghai 语义且不依赖 Intl。
+  const shanghai = new Date(now.getTime() + 8 * 60 * 60 * 1000)
+  const year = shanghai.getUTCFullYear()
+  const month = String(shanghai.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(shanghai.getUTCDate()).padStart(2, '0')
+  const hour = shanghai.getUTCHours()
+  const minute = String(shanghai.getUTCMinutes()).padStart(2, '0')
   return {
-    date: `${values.year}-${values.month}-${values.day}`,
-    time: `${values.hour}:${values.minute}`,
-    hour: Number(values.hour),
+    date: `${year}-${month}-${day}`,
+    time: `${String(hour).padStart(2, '0')}:${minute}`,
+    hour,
   }
 }
 
@@ -260,7 +262,10 @@ export function buildWeeklySpendingSeries(
   })
 }
 
-const publicAuthPaths = new Set(['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'])
+const publicAuthPaths = new Set([
+  '/auth/login', '/auth/register', '/auth/refresh', '/auth/logout',
+  '/auth/wechat/mini-program/login', '/auth/wechat/mini-program/bind',
+])
 
 export function shouldAttemptTokenRefresh(path: string, statusCode: number): boolean {
   return statusCode === 401 && !publicAuthPaths.has(path)

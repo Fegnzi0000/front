@@ -56,8 +56,8 @@ export default function ProfileEditPage() {
         <View className='field' style='text-align:left'>
           <Text className='label'>注册邮箱</Text>
           <View className='input row'>
-            <Text>{user?.email ?? ""}</Text>
-            <Text className='muted'>只读</Text>
+            <Text>{user?.email ?? '未绑定邮箱'}</Text>
+            <Text className='muted'>{user?.email ? '只读' : '微信登录用户'}</Text>
           </View>
         </View>
       </View>
