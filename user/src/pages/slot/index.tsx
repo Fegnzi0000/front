@@ -49,20 +49,16 @@ export default function SlotPage() {
   const { showPaylines } = getSlotMachinePresentation()
   const stopDelays = getSlotReelStopDelays()
 
-  useDidShow(() => { syncCustomTabBar(2); setSoundEnabled(Boolean(Taro.getStorageSync('ai-ganfan.sound'))); api.foods({ size: 100 }).then((page) => setFoods(page.items)).catch(() => setFoods([])); refresh((value) => value + 1) })
+  useDidShow(() => { syncCustomTabBar(2, shouldHideTabBar(stage)); setSoundEnabled(Boolean(Taro.getStorageSync('ai-ganfan.sound'))); api.foods({ size: 100 }).then((page) => setFoods(page.items)).catch(() => setFoods([])); refresh((value) => value + 1) })
   useEffect(() => {
     const hidden = shouldHideTabBar(stage)
     setCustomTabBarHidden(hidden)
-    const tabBarTask = hidden ? Taro.hideTabBar({ animation: true }) : Taro.showTabBar({ animation: true })
-    tabBarTask.catch(() => undefined)
   }, [stage])
   useEffect(() => () => {
     if (timer.current) clearTimeout(timer.current)
     audio.current?.stop()
     audio.current?.destroy()
     audio.current = null
-    setCustomTabBarHidden(false)
-    Taro.showTabBar({ animation: false }).catch(() => undefined)
   }, [])
 
   const move = (event: Parameters<typeof nextSlotStage>[1]) => setStage((current) => nextSlotStage(current, event))
