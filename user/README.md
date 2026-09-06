@@ -36,6 +36,6 @@ npm.cmd run dev:weapp
 1. 在后端目录执行 `powershell -ExecutionPolicy Bypass -File .\scripts\start-backend.ps1`；脚本会启动项目内的便携 MySQL 和 Java 后端，默认地址为 `http://127.0.0.1:8080/api/v1`。
 2. 复制 `.env.example` 的变量到本地终端或构建环境；真机调试使用可访问的 HTTPS 地址。
 3. 执行 `npm.cmd run dev:weapp`，在微信开发者工具导入本目录并编译。
-4. 注册账号后，后端会初始化默认食物；完成引导后可管理食物、记录饮食、抽取老虎机结果并确认。
+4. 选择允许的年龄段、主动同意用户协议和隐私政策后微信登录；首次登录初始化默认食物。完成引导后可管理食物、记录饮食和随机选餐。邮箱注册/登录/绑定已移除，医疗过敏是仅限成年人的独立可选同意功能。
 
 本机 Storage 仅保存 Access Token、Refresh Token 和老虎机声音设置；食物、偏好、Spin 和饮食记录均由后端管理。
