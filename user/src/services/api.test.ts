@@ -30,6 +30,18 @@ const unauthorized = (code: string, message: string) => ({
 })
 
 describe('API 401 handling', () => {
+  it('never sends a WeChat login without explicit current consent', async () => {
+    taroMocks.request.mockReset()
+    await expect(api.weChatMiniProgramLogin('code')).rejects.toThrow()
+    expect(taroMocks.request).not.toHaveBeenCalled()
+  })
+  it('rejects under-age and stale consent without sending a request', async () => {
+    taroMocks.request.mockReset()
+    for (const value of [undefined, { accepted: false }, { accepted: true, termsVersion: 'old', privacyVersion: 'old', ageBand: 'ADULT' }, { accepted: true, termsVersion: '2026-09-06.1', privacyVersion: '2026-09-06.1', ageBand: 'UNDER_14' }]) {
+      await expect(api.weChatMiniProgramLogin('code', value as never)).rejects.toThrow()
+    }
+    expect(taroMocks.request).not.toHaveBeenCalled()
+  })
   beforeEach(() => {
     taroMocks.storage.clear()
     taroMocks.request.mockReset()
@@ -42,7 +54,7 @@ describe('API 401 handling', () => {
   it('shows the original credential error without attempting token refresh on login', async () => {
     taroMocks.request.mockResolvedValueOnce(unauthorized('AUTH_INVALID_CREDENTIALS', '邮箱或密码错误'))
 
-    await expect(api.login('user@example.com', 'wrong_123')).rejects.toMatchObject({
+    await expect(api.weChatMiniProgramLogin('invalid-code', { accepted: true, termsVersion: '2026-09-06.1', privacyVersion: '2026-09-06.1', ageBand: 'ADULT' })).rejects.toMatchObject({
       statusCode: 401,
       body: { code: 'AUTH_INVALID_CREDENTIALS', message: '邮箱或密码错误' },
     })

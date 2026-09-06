@@ -1,35 +1,31 @@
-import { Button, Input, Text, View } from '@tarojs/components'
+import { Button, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { useState } from 'react'
-
+import { useRef, useState } from 'react'
 import { PageHeader } from '../../../components/ui'
-import { validatePasswordChange } from '../../../domain/core'
+import { CONTACT_EMAIL } from '../../../domain/legal'
 import { api, clearTokens } from '../../../services/api'
-
 export default function AccountSecurityPage() {
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmation, setConfirmation] = useState('')
   const [error, setError] = useState('')
-  const changePassword = async () => {
-    const validation = validatePasswordChange(currentPassword, newPassword, confirmation)
-    if (validation) return setError(validation)
+  const [busy, setBusy] = useState(false)
+  const lock = useRef(false)
+  const cancel = async () => {
+    if (lock.current) return
+    lock.current = true; setBusy(true)
     try {
-      await api.changePassword(currentPassword, newPassword, confirmation)
+      const answer = await Taro.showModal({ title: '确认注销账号？', content: '将重新验证当前微信身份并撤销全部会话。账号不能直接恢复，重新注册或数据清理请联系开发者。软注销不等于数据已经删除。', confirmText: '继续注销', confirmColor: '#BA1A1A' })
+      if (!answer.confirm) return
+      const final = await Taro.showModal({ title: '最后确认', content: '注销后无法登录原账号，是否继续？', confirmText: '确认注销' })
+      if (!final.confirm) return
+      const result = await Taro.login()
+      if (!result.code) throw new Error('微信身份验证未完成')
+      await api.cancelAccount(result.code)
       clearTokens()
-      await Taro.reLaunch({ url: '/pages/auth/login/index?reason=passwordChanged' })
-    } catch (reason) { setError(reason instanceof Error ? reason.message : '修改失败') }
+      await Taro.reLaunch({ url: '/pages/auth/login/index' })
+    } catch (reason) { setError(reason instanceof Error ? reason.message : '注销未完成') }
+    finally { lock.current = false; setBusy(false) }
   }
-  const cancelAccount = async () => {
-    const first = await Taro.showModal({ title: '注销账号？', content: '注销后将撤销全部会话，账号不可恢复。', confirmText: '继续注销', confirmColor: '#BA1A1A' })
-    if (!first.confirm) return
-    const second = await Taro.showModal({ title: '最后确认', content: '将使用上方“当前密码”输入框中的密码确认注销。', confirmText: '确认注销', confirmColor: '#BA1A1A' })
-    if (!second.confirm) return
-    try { await api.cancelAccount(currentPassword); clearTokens(); await Taro.reLaunch({ url: '/pages/auth/login/index' }) } catch (reason) { setError(reason instanceof Error ? reason.message : '注销失败') }
-  }
-  return <View className='page page-secondary'><PageHeader back title='账号与安全' subtitle='头像、密码和账号状态' />
-    <Text className='group-title'>头像</Text><View className='card row'><View><Text className='action-title'>当前头像</Text><Text className='action-note'>一期暂不提供头像上传，后续接入微信头像授权。</Text></View></View>
-    <Text className='group-title'>修改密码</Text><View className='card'><View className='field'><Text className='label'>当前密码</Text><Input className='input' password value={currentPassword} onInput={(event) => setCurrentPassword(event.detail.value)} /></View><View className='field'><Text className='label'>新密码</Text><Input className='input' password value={newPassword} placeholder='6～20位字母、数字或下划线' onInput={(event) => setNewPassword(event.detail.value)} /></View><View className='field'><Text className='label'>确认新密码</Text><Input className='input' password value={confirmation} onInput={(event) => setConfirmation(event.detail.value)} /></View>{error && <Text className='error'>{error}</Text>}<Button className='primary-button' onClick={changePassword}>修改密码</Button></View>
-    <Text className='group-title'>注销账号</Text><View className='card'><Text className='action-title'>永久注销当前账号</Text><Text className='action-note'>该入口对应账号注销接口，并使用两次确认防止误操作。</Text><Button className='danger-button' onClick={cancelAccount}>申请注销账号</Button></View>
+  return <View className='page page-secondary'><PageHeader back title='账号与安全' subtitle='微信身份与账号管理' />
+    <View className='card'><Text className='action-title'>微信登录账号</Text><Text className='action-note'>无需邮箱或密码。查询、复制、删除数据及重新注册申请请联系：</Text><Text selectable>{CONTACT_EMAIL}</Text></View>
+    <View className='card'><Text className='action-title'>注销账号</Text><Text className='action-note'>注销撤销所有会话。相关数据按隐私政策处理，不会仅因软注销无限期保留。</Text>{error && <Text className='error'>{error}</Text>}<Button className='danger-button' disabled={busy} loading={busy} onClick={cancel}>申请注销账号</Button></View>
   </View>
 }

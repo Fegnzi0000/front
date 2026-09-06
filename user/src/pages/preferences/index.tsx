@@ -3,7 +3,8 @@ import Taro, { useLoad } from "@tarojs/taro";
 import { useState } from "react";
 
 import { PageHeader } from "../../components/ui";
-import { api, type PreferenceItem } from "../../services/api";
+import { api, type PreferenceItem, type ConsentStatus } from "../../services/api";
+import { legalDocuments } from '../../domain/legal';
 import "./index.scss";
 
 type GroupKey =
@@ -63,6 +64,8 @@ const groups: Array<{
   },
 ];
 export default function PreferencesPage() {
+  const [consent, setConsent] = useState<ConsentStatus | null>(null);
+  const [consentBusy, setConsentBusy] = useState(false);
   const empty: Record<GroupKey, PreferenceItem[]> = {
     tastePreferences: [],
     medicalAllergies: [],
@@ -78,6 +81,7 @@ export default function PreferencesPage() {
     dislikes: "",
   });
   useLoad(() => {
+    api.consent().then(setConsent).catch(() => setConsent(null));
     api
       .preferences()
       .then((value) =>
@@ -130,7 +134,7 @@ export default function PreferencesPage() {
     }));
   const save = async () => {
     try {
-      await api.updatePreferences(selected);
+      await api.updatePreferences({ ...selected, medicalAllergies: consent?.medicalAllowed ? selected.medicalAllergies : [] });
       Taro.showToast({ title: "饮食偏好已保存", icon: "success" });
       setTimeout(() => Taro.navigateBack(), 350);
     } catch (reason) {
@@ -140,6 +144,20 @@ export default function PreferencesPage() {
       });
     }
   };
+  const changeMedicalConsent = async () => {
+    if (!consent || consentBusy) return;
+    const enabled = consent.medicalAllowed;
+    if (!enabled && consent.ageBand !== 'ADULT') return;
+    setConsentBusy(true);
+    try {
+      const answer = await Taro.showModal({ title: enabled ? '撤回并清空过敏信息？' : '医疗过敏信息单独同意', content: enabled ? '将停止处理并清除在线过敏记录，不影响其他功能。' : legalDocuments.medical.text, confirmText: enabled ? '撤回清空' : '单独同意', cancelText: '不同意' });
+      if (!answer.confirm) return;
+      setConsent(await api.medicalConsent(!enabled));
+      if (!enabled) { const latest = await api.preferences(); setSelected(current => ({ ...current, medicalAllergies: latest.medicalAllergies })); }
+      if (enabled) setSelected(current => ({ ...current, medicalAllergies: [] }));
+    } catch (reason) { await Taro.showToast({ title: reason instanceof Error ? reason.message : '操作失败', icon: 'none' }); }
+    finally { setConsentBusy(false); }
+  };
   return (
     <View className='page page-secondary preferences-page'>
       <PageHeader
@@ -147,7 +165,12 @@ export default function PreferencesPage() {
         title='口味偏好与忌口'
         subtitle='四类信息分开保存，“无”不会写入数据'
       />
-      {groups.map((group) => (
+      <View className='card'><Text className='action-note'>医疗过敏仅供个人备忘，不参与自动避敏。随机选餐结果不保证安全，请核实配料和交叉接触风险。</Text>
+        <Text className='text-link' onClick={() => Taro.navigateTo({ url: '/pages/legal/index?kind=medical' })}>阅读医疗过敏信息处理说明</Text>
+        <Button disabled={!consent || consentBusy || consent.ageBand !== 'ADULT'} onClick={changeMedicalConsent}>{consent?.medicalAllowed ? '撤回同意并清空过敏信息' : '单独同意并启用过敏备忘'}</Button>
+        {consent?.ageBand !== 'ADULT' && <Text className='action-note'>首版仅向已满十八周岁用户开放此可选功能。</Text>}
+      </View>
+      {groups.filter(group => group.key !== 'medicalAllergies' || consent?.medicalAllowed).map((group) => (
         <View className='preference-card card' key={group.key}>
           <View className='row'>
             <View>

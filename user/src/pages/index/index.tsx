@@ -26,6 +26,8 @@ export default function Index() {
       return
     }
     try {
+      const consent = await api.consent()
+      if (!consent.current) { await api.logout().catch(() => undefined); await Taro.reLaunch({ url: '/pages/auth/login/index' }); return }
       const user = await api.me()
       await wait(Math.max(0, minimumLoadingTime - (Date.now() - startedAt)))
       const targetRoute = resolveAuthenticatedRoute(user)
@@ -34,7 +36,8 @@ export default function Index() {
         await Taro.reLaunch({ url: '/pages/auth/login/index' })
         return
       }
-      await Taro.reLaunch({ url: targetRoute })
+      if (targetRoute === '/pages/home/index') await Taro.switchTab({ url: targetRoute })
+      else await Taro.reLaunch({ url: targetRoute })
     } catch (error) {
       if (error instanceof ApiError && error.statusCode === 401) return
       setMessage('网络有点慢，请检查连接后重试')

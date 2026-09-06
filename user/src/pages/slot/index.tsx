@@ -126,6 +126,7 @@ export default function SlotPage() {
   const reels = result ? buildSlotReels(foods, result) : []
   return <View className='page slot-page'>
     <PageHeader back={false} title='老虎机开饭' subtitle='点击按钮，看看这一餐吃什么' rightLabel='食物池' onRight={() => Taro.switchTab({ url: '/pages/foods/index' })} />
+    <Text className='action-note'>随机选择仅供参考，不会自动排除过敏原。请核实实际食材及交叉接触风险后自行决定。</Text>
     {foods.length === 0 ? <EmptyState title='老虎机里还没有食物' note='先添加至少一个备选，再回来转动'>
       <Button className='primary-button' onClick={() => Taro.switchTab({ url: '/pages/foods/index' })}>去添加食物</Button>
     </EmptyState> : <>

@@ -51,12 +51,7 @@ export default function SettingsPage() {
       <View
         className='card action-tile'
         onClick={() =>
-          Taro.showModal({
-            title: "隐私保护说明",
-            content:
-              "食物、偏好和饮食记录保存在后端；本机只保存登录令牌和应用展示设置。",
-            showCancel: false,
-          })
+          Taro.navigateTo({ url: '/pages/legal/index?kind=privacy' })
         }
       >
         <View className='action-icon'>隐</View>
@@ -67,6 +62,7 @@ export default function SettingsPage() {
         <Text className='action-arrow'>›</Text>
       </View>
       <Text className='group-title'>关于与退出</Text>
+      <Button className='secondary-button' onClick={() => Taro.navigateTo({ url: '/pages/legal/index?kind=terms' })}>用户协议</Button>
       <View className='card'>
         <View className='row'>
           <Text>是啊，吃什么？</Text>

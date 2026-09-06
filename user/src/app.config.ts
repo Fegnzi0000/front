@@ -2,7 +2,7 @@ export default defineAppConfig({
   pages: [
     'pages/index/index',
     'pages/auth/login/index',
-    'pages/auth/register/index',
+    'pages/legal/index',
     'pages/onboarding/index',
     'pages/home/index',
     'pages/foods/index',

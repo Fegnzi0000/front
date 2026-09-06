@@ -7,6 +7,9 @@
 import Taro from '@tarojs/taro'
 
 import { shouldAttemptTokenRefresh } from '../domain/core'
+import { LEGAL_VERSION } from '../domain/legal'
+export type LoginConsent = { accepted: boolean; termsVersion: string; privacyVersion: string; ageBand: 'AGE_14_17' | 'ADULT' }
+export type ConsentStatus = { current: boolean; ageBand: string | null; medicalAllowed: boolean }
 
 const DEFAULT_API_BASE_URL = 'http://127.0.0.1:8080/api/v1'
 const API_BASE_URL = process.env.TARO_APP_API_BASE_URL || DEFAULT_API_BASE_URL
@@ -116,16 +119,17 @@ async function request<T>(method: Taro.request.Option['method'], path: string, d
 }
 
 export const api = {
-  register: async (email: string, password: string, confirmPassword: string) => { const data = await request<AuthData>('POST', '/auth/register', { email, password, confirmPassword }); saveTokens(data); return data },
-  login: async (email: string, password: string) => { const data = await request<AuthData>('POST', '/auth/login', { email, password }); saveTokens(data); return data },
-  weChatMiniProgramLogin: async (code: string) => { const data = await request<AuthData>('POST', '/auth/wechat/mini-program/login', { code }); saveTokens(data); return data },
-  bindWeChatMiniProgram: async (code: string, email: string, password: string) => { const data = await request<AuthData>('POST', '/auth/wechat/mini-program/bind', { code, email, password }); saveTokens(data); return data },
+  weChatMiniProgramLogin: async (code: string, consent?: LoginConsent) => {
+    if (!consent?.accepted || consent.termsVersion !== LEGAL_VERSION || consent.privacyVersion !== LEGAL_VERSION || !['AGE_14_17', 'ADULT'].includes(consent.ageBand)) throw new Error('请确认年龄范围并主动同意当前用户协议与隐私政策')
+    const data = await request<AuthData>('POST', '/auth/wechat/mini-program/login', { code, ...consent }); saveTokens(data); return data
+  },
+  consent: () => request<ConsentStatus>('GET', '/users/me/consent'),
+  medicalConsent: (accepted: boolean) => request<ConsentStatus>('PUT', '/users/me/consent/medical', { accepted, version: LEGAL_VERSION }),
   logout: async () => { const { refreshToken } = tokens(); try { if (refreshToken) await request<Record<string, never>>('POST', '/auth/logout', { refreshToken }) } finally { clearTokens() } },
   me: () => request<User>('GET', '/users/me'),
   submitOnboarding: (data: { nickname: string | null; budgetEnabled: boolean; dailyBudget: string | null; medicalAllergies: PreferenceItem[]; dietaryRestrictions: PreferenceItem[]; dislikes: PreferenceItem[]; tastePreferences: PreferenceItem[] }) => request<User>('PUT', '/users/me/onboarding', data),
   updateProfile: (nickname: string) => request<User>('PATCH', '/users/me/profile', { nickname }),
-  changePassword: (currentPassword: string, newPassword: string, confirmNewPassword: string) => request<Record<string, never>>('POST', '/users/me/change-password', { currentPassword, newPassword, confirmNewPassword }),
-  cancelAccount: (currentPassword: string) => request<Record<string, never>>('POST', '/users/me/cancel', { currentPassword, confirmation: 'CANCEL' }),
+  cancelAccount: (code: string) => request<Record<string, never>>('POST', '/users/me/cancel-wechat', { code, confirmation: 'CANCEL' }),
   preferenceOptions: () => request<Record<PreferenceKind, PreferenceItem[]>>('GET', '/preferences/options'),
   preferences: () => request<Preferences>('GET', '/users/me/preferences'),
   updatePreferences: (data: Partial<Preferences>) => request<Preferences>('PATCH', '/users/me/preferences', data),

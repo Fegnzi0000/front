@@ -168,7 +168,8 @@ export default function OnboardingPage() {
           <Text className='page-subtitle'>
             选择“无”就是清空该组；一期只保存，不用于自动医疗判断。
           </Text>
-          {groups.map((group) => (
+          <Text className='page-subtitle'>医疗过敏为可选敏感信息，可稍后在偏好设置中单独同意后填写；当前不参与自动避敏。</Text>
+          {groups.filter(group => group.key !== 'medicalAllergies').map((group) => (
             <View className='card preference-mini' key={group.key}>
               <View className='row'>
                 <Text className='action-title'>{group.title}</Text>
