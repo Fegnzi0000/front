@@ -9,7 +9,7 @@ const tabs = [
 Component({
   data: {
     hidden: false,
-    selected: 0,
+    selected: -1,
     tabs
   },
 
@@ -32,14 +32,16 @@ Component({
       const route = `/${currentPage && currentPage.route ? currentPage.route : ''}`.replace(/\/+$/, '')
       const selected = tabs.findIndex((tab) => tab.pagePath === route)
       // 没有匹配到主 Tab 时清空选中态，不能沿用默认“首页”。
-      this.setData({ selected })
+      if (selected !== this.data.selected) this.setData({ selected })
     },
 
     switchTab(event) {
       const selected = Number(event.currentTarget.dataset.index)
+      if (!Number.isInteger(selected) || !tabs[selected] || selected === this.data.selected || this.switching) return
+      this.switching = true
       wx.switchTab({
         url: tabs[selected].pagePath,
-        success: () => this.syncSelected()
+        complete: () => { this.switching = false }
       })
     }
   }

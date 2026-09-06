@@ -8,7 +8,7 @@
   align-items: center;
   justify-content: space-around;
   box-sizing: border-box;
-  min-height: calc(118rpx + env(safe-area-inset-bottom));
+  height: calc(128rpx + env(safe-area-inset-bottom));
   padding: 8rpx 10rpx calc(8rpx + env(safe-area-inset-bottom));
   border: 2rpx solid rgba(223, 197, 184, .85);
   border-radius: 42rpx;
@@ -23,13 +23,12 @@
   flex-direction: column;
   flex: 1 1 0;
   min-width: 0;
-  height: 92rpx;
+  height: 108rpx;
   color: #806c62;
   border-radius: 30rpx;
 }
 .tab-item.active {
   z-index: 1;
-  height: 108rpx;
   color: #fff;
   background: #a94700;
   box-shadow: 0 12rpx 30rpx rgba(169, 71, 0, .28);
