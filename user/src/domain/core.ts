@@ -314,6 +314,10 @@ export function getProfileFoodActions() {
   }]
 }
 
+export function getWechatProfilePresentation(user: { nickname?: string | null }) {
+  return { nickname: user.nickname ?? '', accountLabel: '微信账号' }
+}
+
 export type SlotSoundCommand = 'PLAY' | 'STOP' | 'NONE'
 
 export function getSlotSoundCommand(enabled: boolean, event: SlotEvent): SlotSoundCommand {

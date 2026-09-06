@@ -13,11 +13,10 @@ import { UserStatusTag } from '../../shared/ui/StatusTag'
 import { validateDateRange } from '../../shared/utils/dateRange'
 import { getUserActions } from './userActions'
 
-type FilterForm = { email?: string; nickname?: string; status?: UserStatus; registeredRange?: [Dayjs, Dayjs] }
+type FilterForm = { nickname?: string; status?: UserStatus; registeredRange?: [Dayjs, Dayjs] }
 
 function queryFromParams(params: URLSearchParams): UserListQuery {
   return {
-    email: params.get('email') || undefined,
     nickname: params.get('nickname') || undefined,
     status: (params.get('status') as UserStatus | null) ?? undefined,
     registeredStartDate: params.get('registeredStartDate') || undefined,
@@ -52,7 +51,6 @@ export default function UsersPage() {
     const validation = validateDateRange(start, end, 90)
     if (!validation.valid) { void message.error(validation.message); return }
     const next: Record<string, string> = { page: '0', size: String(query.size ?? 20) }
-    if (values.email?.trim()) next.email = values.email.trim()
     if (values.nickname?.trim()) next.nickname = values.nickname.trim()
     if (values.status) next.status = values.status
     if (start && end) { next.registeredStartDate = start; next.registeredEndDate = end }
@@ -77,7 +75,7 @@ export default function UsersPage() {
   }
 
   const columns: TableColumnsType<AdminUser> = [
-    { title: '用户', key: 'user', width: 220, render: (_, item) => <Space orientation="vertical" size={0}><Typography.Text>{item.nickname || '未设置昵称'}</Typography.Text><CopyText value={item.id} /><Typography.Text type="secondary">{item.email ?? '未设置邮箱（微信账号无需邮箱）'}</Typography.Text></Space> },
+    { title: '用户', key: 'user', width: 220, render: (_, item) => <Space orientation="vertical" size={0}><Typography.Text>{item.nickname || '未设置昵称'}</Typography.Text><CopyText value={item.id} /></Space> },
     { title: '状态', dataIndex: 'status', width: 84, render: (status: UserStatus) => <UserStatusTag status={status} /> },
     { title: '引导', dataIndex: 'onboardingCompleted', width: 84, render: (value: boolean) => <Tag color={value ? 'success' : 'default'}>{value ? '已完成' : '未完成'}</Tag> },
     { title: '注册时间', dataIndex: 'createdAt', width: 150, render: (value: string) => dayjs(value).format('YYYY-MM-DD HH:mm') },
@@ -90,8 +88,7 @@ export default function UsersPage() {
     <Space orientation="vertical" size={16} className="page-stack">
       {users.isError && <Alert type="warning" showIcon title="刷新失败，当前显示上次成功数据" />}
       <Card className="filter-card">
-        <Form<FilterForm> form={form} layout="inline" onFinish={submit} initialValues={{ email: query.email, nickname: query.nickname, status: query.status, registeredRange: query.registeredStartDate && query.registeredEndDate ? [dayjs(query.registeredStartDate), dayjs(query.registeredEndDate)] : undefined }}>
-          <Form.Item label="邮箱" name="email"><Input allowClear placeholder="邮箱前缀" /></Form.Item>
+        <Form<FilterForm> form={form} layout="inline" onFinish={submit} initialValues={{ nickname: query.nickname, status: query.status, registeredRange: query.registeredStartDate && query.registeredEndDate ? [dayjs(query.registeredStartDate), dayjs(query.registeredEndDate)] : undefined }}>
           <Form.Item label="昵称" name="nickname"><Input allowClear placeholder="昵称包含" /></Form.Item>
           <Form.Item label="状态" name="status"><Select allowClear placeholder="全部状态" style={{ width: 130 }} options={[{ value: 'ACTIVE', label: '正常' }, { value: 'DISABLED', label: '已禁用' }, { value: 'CANCELLED', label: '已注销' }]} /></Form.Item>
           <Form.Item label="注册日期" name="registeredRange"><DatePicker.RangePicker /></Form.Item>

@@ -15,11 +15,11 @@ import { apiRequest } from './client'
 
 export type DashboardQuery = { startDate?: string; endDate?: string }
 export type UserListQuery = {
-  email?: string; nickname?: string; status?: UserStatus
+  nickname?: string; status?: UserStatus
   registeredStartDate?: string; registeredEndDate?: string; page?: number; size?: number
 }
 export type AuditQuery = {
-  adminAccount?: string; targetUserEmail?: string; targetUserNickname?: string; action?: AuditAction; result?: AuditResult
+  adminAccount?: string; targetUserNickname?: string; action?: AuditAction; result?: AuditResult
   startDate?: string; endDate?: string; page?: number; size?: number
 }
 

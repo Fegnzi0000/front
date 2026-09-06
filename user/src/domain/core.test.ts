@@ -49,6 +49,19 @@ describe('validatePassword', () => {
   })
 })
 
+describe('WeChat profile identity', () => {
+  it('does not use a legacy email address as consumer profile copy', () => {
+    const formatter = (coreModule as unknown as Record<string, unknown>).getWechatProfilePresentation
+    expect(formatter).toBeTypeOf('function')
+    if (typeof formatter === 'function') {
+      expect(formatter({ nickname: '微信用户', email: 'legacy@example.com' })).toEqual({
+        nickname: '微信用户',
+        accountLabel: '微信账号',
+      })
+    }
+  })
+})
+
 describe('validateBudget', () => {
   it('requires null amount when budget is disabled', () => {
     expect(validateBudget(false, null)).toBeNull()

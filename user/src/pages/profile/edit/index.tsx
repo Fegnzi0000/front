@@ -3,17 +3,15 @@ import Taro, { useLoad } from "@tarojs/taro";
 import { useState } from "react";
 
 import { PageHeader } from "../../../components/ui";
-import { api, type User } from "../../../services/api";
+import { api } from "../../../services/api";
 
 export default function ProfileEditPage() {
-  const [user, setUser] = useState<User | null>(null);
   const [nickname, setNickname] = useState("");
   const [error, setError] = useState("");
   useLoad(() => {
     api
       .me()
       .then((next) => {
-        setUser(next);
         setNickname(next.nickname);
       })
       .catch((reason) =>
@@ -37,7 +35,7 @@ export default function ProfileEditPage() {
       <PageHeader
         back
         title='个人资料'
-        subtitle='头像功能后续接入微信授权，邮箱不可修改'
+        subtitle='修改当前微信账号在本应用中的昵称'
       />
       <View className='card' style='text-align:center'>
         <View className='profile-avatar' style='margin:0 auto 24rpx'>
@@ -52,13 +50,6 @@ export default function ProfileEditPage() {
             onInput={(e) => setNickname(e.detail.value)}
           />
           {error && <Text className='error'>{error}</Text>}
-        </View>
-        <View className='field' style='text-align:left'>
-          <Text className='label'>注册邮箱</Text>
-          <View className='input row'>
-            <Text>{user?.email ?? '未绑定邮箱'}</Text>
-            <Text className='muted'>{user?.email ? '只读' : '微信登录用户'}</Text>
-          </View>
         </View>
       </View>
       <Button className='primary-button' onClick={save}>
