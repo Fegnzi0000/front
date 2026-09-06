@@ -55,7 +55,7 @@ export default function AuditPage() {
   const columns: TableColumnsType<AuditLog> = [
     { title: '时间', dataIndex: 'createdAt', width: 180, render: (value: string) => dayjs(value).format('YYYY-MM-DD HH:mm:ss') },
     { title: '管理员', key: 'admin', width: 200, render: (_, item) => <Space orientation="vertical" size={0}><Typography.Text>{item.admin.account ?? '历史账号'}</Typography.Text>{item.admin.nickname && <Typography.Text type="secondary">{item.admin.nickname}</Typography.Text>}</Space> },
-    { title: '目标用户', key: 'target', width: 260, render: (_, item) => item.targetUser ? <Space orientation="vertical" size={0}><Typography.Text>{item.targetUser.email ?? '历史账号'}</Typography.Text>{item.targetUser.nickname && <Typography.Text type="secondary">{item.targetUser.nickname}</Typography.Text>}</Space> : '—' },
+    { title: '目标用户', key: 'target', width: 260, render: (_, item) => item.targetUser ? <Space orientation="vertical" size={0}><Typography.Text>{item.targetUser.email ?? '未设置邮箱'}</Typography.Text>{item.targetUser.nickname && <Typography.Text type="secondary">{item.targetUser.nickname}</Typography.Text>}</Space> : '—' },
     { title: '操作', dataIndex: 'action', width: 150, render: (value: string) => actionLabels[value] ?? value },
     { title: '结果', dataIndex: 'result', width: 90, render: (value: AuditResult) => <AuditResultTag result={value} /> },
     { title: '请求编号', dataIndex: 'requestId', width: 220, render: (value: string | null) => value ? <CopyText value={value} /> : '—' },
@@ -83,7 +83,7 @@ export default function AuditPage() {
           <Descriptions.Item label="操作">{actionLabels[selected.action] ?? selected.action}</Descriptions.Item>
           <Descriptions.Item label="结果"><AuditResultTag result={selected.result} /></Descriptions.Item>
           <Descriptions.Item label="管理员">{selected.admin.account ?? '历史账号'}{selected.admin.nickname ? `（${selected.admin.nickname}）` : ''}</Descriptions.Item>
-          <Descriptions.Item label="目标用户">{selected.targetUser ? `${selected.targetUser.email ?? '历史账号'}${selected.targetUser.nickname ? `（${selected.targetUser.nickname}）` : ''}` : '—'}</Descriptions.Item>
+          <Descriptions.Item label="目标用户">{selected.targetUser ? `${selected.targetUser.email ?? '未设置邮箱'}${selected.targetUser.nickname ? `（${selected.targetUser.nickname}）` : ''}` : '—'}</Descriptions.Item>
           <Descriptions.Item label="请求编号">{selected.requestId ? <CopyText value={selected.requestId} /> : '—'}</Descriptions.Item>
           {details.map(([label, value]) => <Descriptions.Item key={label} label={label}>{value}</Descriptions.Item>)}
           {details.length === 0 && <Descriptions.Item label="摘要">无可展示的非敏感详情</Descriptions.Item>}

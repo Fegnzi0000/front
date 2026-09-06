@@ -37,7 +37,7 @@ export default function AdminLayout() {
       <Layout>
         <Header className="admin-header">
           <Space>{mobile && <Button type="text" icon={<MenuOutlined />} aria-label="打开导航" onClick={() => setOpen(true)} />}<Typography.Title level={3}>{title}</Typography.Title></Space>
-          <Space><Typography.Text type="secondary" className="admin-email">{user?.email}</Typography.Text><Button icon={<LogoutOutlined />} onClick={() => void logout().then(() => navigate('/login'))}>退出</Button></Space>
+          <Space><Typography.Text type="secondary" className="admin-email">{user?.nickname || '管理员'}</Typography.Text><Button icon={<LogoutOutlined />} onClick={() => void logout().then(() => navigate('/login'))}>退出</Button></Space>
         </Header>
         <Content id="main-content" className="admin-content"><div className="content-inner"><Outlet /></div></Content>
       </Layout>

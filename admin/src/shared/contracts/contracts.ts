@@ -19,7 +19,7 @@ export const auditActionSchema = z.enum([
 
 export const currentUserSchema = z.object({
   id: z.string(),
-  email: z.email(),
+  email: z.email().nullable(),
   nickname: z.string(),
   avatarUrl: z.string().nullable(),
   role: roleSchema,
@@ -46,7 +46,7 @@ export const tokenDataSchema = z.object({
 
 export const adminUserSchema = z.object({
   id: z.string(),
-  email: z.email(),
+  email: z.email().nullable(),
   nickname: z.string(),
   role: z.literal('USER'),
   status: userStatusSchema,

@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { getUserActions } from './userActions'
 
 describe('getUserActions', () => {
-  it('allows disabling and temporary passwords for active users', () => {
-    expect(getUserActions('ACTIVE')).toEqual(['DISABLE', 'TEMP_PASSWORD'])
+  it('does not offer password operations for consumer users', () => {
+    expect(getUserActions('ACTIVE')).toEqual(['DISABLE'])
   })
 
   it('allows only enabling disabled users', () => {

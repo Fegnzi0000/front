@@ -3,6 +3,12 @@ import { describe, expect, it } from 'vitest'
 import { adminUserSchema, apiSuccessSchema, auditLogSchema, currentUserSchema, dashboardDataSchema } from './contracts'
 
 describe('API contracts', () => {
+  it('accepts users without an email, while rejecting malformed email strings', () => {
+    const user = { id: 'wechat-user', email: null, nickname: '微信用户', role: 'USER', status: 'ACTIVE', onboardingCompleted: false, mustChangePassword: false, createdAt: 1788139800, lastLoginAt: null }
+    expect(adminUserSchema.safeParse(user).success).toBe(true)
+    expect(currentUserSchema.safeParse({ ...user, avatarUrl: null }).success).toBe(true)
+    expect(adminUserSchema.safeParse({ ...user, email: 'invalid' }).success).toBe(false)
+  })
   it('rejects product roles outside USER and ADMIN', () => {
     const result = currentUserSchema.safeParse({
       id: '123e4567-e89b-12d3-a456-426614174000',

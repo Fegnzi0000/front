@@ -77,10 +77,9 @@ export default function UsersPage() {
   }
 
   const columns: TableColumnsType<AdminUser> = [
-    { title: '用户', key: 'user', width: 220, render: (_, item) => <Space orientation="vertical" size={0}><CopyText value={item.email} /><Typography.Text type="secondary">{item.nickname || '未设置昵称'}</Typography.Text></Space> },
+    { title: '用户', key: 'user', width: 220, render: (_, item) => <Space orientation="vertical" size={0}><Typography.Text>{item.nickname || '未设置昵称'}</Typography.Text><CopyText value={item.id} /><Typography.Text type="secondary">{item.email ?? '未设置邮箱（微信账号无需邮箱）'}</Typography.Text></Space> },
     { title: '状态', dataIndex: 'status', width: 84, render: (status: UserStatus) => <UserStatusTag status={status} /> },
     { title: '引导', dataIndex: 'onboardingCompleted', width: 84, render: (value: boolean) => <Tag color={value ? 'success' : 'default'}>{value ? '已完成' : '未完成'}</Tag> },
-    { title: '密码状态', dataIndex: 'mustChangePassword', width: 110, render: (value: boolean) => value ? <Tag color="warning">需修改密码</Tag> : '正常' },
     { title: '注册时间', dataIndex: 'createdAt', width: 150, render: (value: string) => dayjs(value).format('YYYY-MM-DD HH:mm') },
     { title: '最后登录', dataIndex: 'lastLoginAt', width: 150, render: (value: string | null) => value ? dayjs(value).format('YYYY-MM-DD HH:mm') : '从未登录' },
     { title: '操作', key: 'actions', width: 190, render: (_, user) => <Space>{getUserActions(user.status).map((action) => <Button key={action} size="small" type={action === 'DISABLE' ? 'link' : 'default'} danger={action === 'DISABLE'} icon={action === 'TEMP_PASSWORD' ? <KeyOutlined /> : undefined} onClick={() => setConfirmUser({ user, action })}>{action === 'ENABLE' ? '启用' : action === 'DISABLE' ? '禁用' : '临时密码'}</Button>)}</Space> },
@@ -103,7 +102,7 @@ export default function UsersPage() {
         <Table<AdminUser> rowKey="id" loading={users.isPending || users.isFetching} dataSource={users.data?.items ?? []} columns={columns} scroll={{ x: 988 }} pagination={{ current: (users.data?.page ?? 0) + 1, pageSize: users.data?.size ?? 20, total: users.data?.totalElements ?? 0, showSizeChanger: true, pageSizeOptions: [20, 50, 100], showTotal: (total) => `共 ${total} 位用户`, onChange: (page, size) => { const next = new URLSearchParams(params); next.set('page', String(page - 1)); next.set('size', String(size)); setParams(next) } }} />
       </Card>
       <Modal open={Boolean(confirmUser)} title={confirmUser?.action === 'TEMP_PASSWORD' ? '生成一次性临时密码' : confirmUser?.action === 'DISABLE' ? '确认禁用用户' : '确认启用用户'} confirmLoading={statusMutation.isPending || temporaryLoading} okButtonProps={{ danger: confirmUser?.action === 'DISABLE' }} onOk={() => void runConfirmedAction()} onCancel={() => setConfirmUser(null)} okText="确认" cancelText="取消">
-        <Typography.Paragraph>目标账号：<Typography.Text strong>{confirmUser?.user.email}</Typography.Text></Typography.Paragraph>
+        <Typography.Paragraph>目标账号：<Typography.Text strong>{confirmUser?.user.nickname}</Typography.Text><br />{confirmUser?.user.id}</Typography.Paragraph>
         <Typography.Paragraph type="secondary">{confirmUser?.action === 'DISABLE' ? '禁用后，该用户现有会话将立即失效。' : confirmUser?.action === 'TEMP_PASSWORD' ? '旧密码和旧会话将失效，临时密码只展示一次。' : '启用后，用户可以重新登录。'}</Typography.Paragraph>
       </Modal>
       <Modal open={Boolean(temporary)} title="一次性临时密码" footer={<Button type="primary" onClick={() => setTemporary(null)}>我已保存，关闭</Button>} closable={false} mask={{ closable: false }}>
