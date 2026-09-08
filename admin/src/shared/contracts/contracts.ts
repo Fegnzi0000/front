@@ -88,11 +88,6 @@ export const dashboardDataSchema = z.object({
   })),
 })
 
-export const temporaryPasswordDataSchema = z.object({
-  temporaryPassword: z.string().min(1),
-  expiresAt: dateTimeSchema,
-})
-
 export const auditAdminSchema = z.object({
   account: z.string().nullable(),
   nickname: z.string().nullable(),
@@ -133,7 +128,6 @@ export type AuthData = z.infer<typeof authDataSchema>
 export type TokenData = z.infer<typeof tokenDataSchema>
 export type AdminUser = z.infer<typeof adminUserSchema>
 export type DashboardData = z.infer<typeof dashboardDataSchema>
-export type TemporaryPasswordData = z.infer<typeof temporaryPasswordDataSchema>
 export type AuditLog = z.infer<typeof auditLogSchema>
 export type Page<T> = { items: T[]; page: number; size: number; totalElements: number; totalPages: number }
 

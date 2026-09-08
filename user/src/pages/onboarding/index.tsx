@@ -19,16 +19,6 @@ const groups = [
     ],
   },
   {
-    key: "medicalAllergies" as const,
-    title: "医疗过敏",
-    options: [
-      ["ALLERGY_PEANUT", "花生过敏"],
-      ["ALLERGY_SEAFOOD", "海鲜过敏"],
-      ["ALLERGY_DAIRY", "乳制品过敏"],
-      ["ALLERGY_EGG", "蛋类过敏"],
-    ],
-  },
-  {
     key: "dietaryRestrictions" as const,
     title: "饮食禁忌",
     options: [
@@ -58,7 +48,6 @@ export default function OnboardingPage() {
   const [budget, setBudget] = useState("50.00");
   const [selected, setSelected] = useState<Record<Key, PreferenceItem[]>>({
     tastePreferences: [],
-    medicalAllergies: [],
     dietaryRestrictions: [],
     dislikes: [],
   });
@@ -88,7 +77,7 @@ export default function OnboardingPage() {
       }
       try { await api.submitOnboarding({ nickname: name, budgetEnabled, dailyBudget: budgetEnabled ? budget : null, ...selected }); } catch (reason) { return setError(reason instanceof Error ? reason.message : '保存失败'); }
     }
-    if (skip) { try { await api.submitOnboarding({ nickname: null, budgetEnabled: false, dailyBudget: null, tastePreferences: [], medicalAllergies: [], dietaryRestrictions: [], dislikes: [] }); } catch (reason) { return setError(reason instanceof Error ? reason.message : '保存失败'); } }
+    if (skip) { try { await api.submitOnboarding({ nickname: null, budgetEnabled: false, dailyBudget: null, tastePreferences: [], dietaryRestrictions: [], dislikes: [] }); } catch (reason) { return setError(reason instanceof Error ? reason.message : '保存失败'); } }
     Taro.switchTab({ url: "/pages/home/index" });
   };
   const next = () => {
@@ -166,10 +155,9 @@ export default function OnboardingPage() {
         <>
           <Text className='onboarding-title'>口味和忌口</Text>
           <Text className='page-subtitle'>
-            选择“无”就是清空该组；一期只保存，不用于自动医疗判断。
+            选择“无”就是清空该组；设置以后仍可修改。
           </Text>
-          <Text className='page-subtitle'>医疗过敏为可选敏感信息，可稍后在偏好设置中单独同意后填写；当前不参与自动避敏。</Text>
-          {groups.filter(group => group.key !== 'medicalAllergies').map((group) => (
+          {groups.map((group) => (
             <View className='card preference-mini' key={group.key}>
               <View className='row'>
                 <Text className='action-title'>{group.title}</Text>

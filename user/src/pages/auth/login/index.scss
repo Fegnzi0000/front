@@ -4,6 +4,11 @@
 .brand-name { font-size: 58px; font-weight: 800; color: #9b4500; }
 .slogan { margin-top: 12px; color: #7a665c; }
 .login-card { margin-top: 56px; padding: 40px 32px; border-radius: 44px; background: rgba(255,255,255,.9); box-shadow: 0 20px 60px rgba(80,40,20,.08); }
+.age-field { margin-top: 26px; }
+.age-label { display: block; margin: 0 0 12px 4px; color: #68483a; font-size: 23px; font-weight: 700; letter-spacing: 1px; }
+.age-selector { display: flex; min-height: 86px; box-sizing: border-box; align-items: center; justify-content: space-between; padding: 0 24px; border: 2px solid #ead8cf; border-radius: 18px; color: #3e2b23; background: #fffaf7; font-size: 29px; font-weight: 600; line-height: 1.35; }
+.age-selector-placeholder { color: #927c70; font-weight: 400; }
+.age-selector-arrow { flex: none; margin-left: 16px; color: #a5531b; font-size: 23px; font-weight: 600; }
 .mock-tip { margin-top: 24px; color: #7a665c; font-size: 24px; }
 .login-links { display: flex; justify-content: space-between; margin-top: 24px; color: #9b4500; font-size: 24px; font-weight: 700; }
 .privacy-link { display: block; min-height: 70px; color: #7a665c; text-align: center; font-size: 22px; line-height: 70px; text-decoration: underline; }

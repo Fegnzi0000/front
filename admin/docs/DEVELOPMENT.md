@@ -10,7 +10,7 @@ HTTP 契约以 `E:\work\gpt_work\前端开发说明.md` 与后端实际响应为
 2. Dashboard、用户筛选和审计查询字段通过 Zod 契约校验。
 3. 后端 CORS 精确放行管理员站点 Origin。
 4. 后端本地 CORS 白名单仅允许 `http://localhost:5173`，联调页面须使用该地址访问。
-5. 临时密码响应为 HTTP 201 且包含 `Cache-Control: no-store`。
+5. 普通用户仅使用微信身份；管理网页不提供临时密码操作。
 6. `/api/v1/admin/**` 对 USER 返回 403，并且只返回/操作 USER。
 
 ## 代码边界

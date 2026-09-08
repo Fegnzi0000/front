@@ -6,7 +6,6 @@ import {
   currentUserSchema,
   dashboardDataSchema,
   pageSchema,
-  temporaryPasswordDataSchema,
   type AuditAction,
   type AuditResult,
   type UserStatus,
@@ -37,7 +36,5 @@ export const api = {
   users: (query: UserListQuery) => apiRequest('GET', '/admin/users', pageSchema(adminUserSchema), { query }),
   updateUserStatus: (id: string, status: 'ACTIVE' | 'DISABLED') =>
     apiRequest('PATCH', `/admin/users/${id}/status`, adminUserSchema, { body: { status } }),
-  createTemporaryPassword: (id: string) =>
-    apiRequest('POST', `/admin/users/${id}/temporary-password`, temporaryPasswordDataSchema),
   auditLogs: (query: AuditQuery) => apiRequest('GET', '/admin/audit-logs', pageSchema(auditLogSchema), { query }),
 }

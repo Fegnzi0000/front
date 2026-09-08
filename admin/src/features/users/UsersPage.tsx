@@ -1,4 +1,4 @@
-import { KeyOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Alert, Button, Card, DatePicker, Form, Input, Modal, Select, Space, Table, Tag, Typography, message, type TableColumnsType } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { api, type UserListQuery } from '../../shared/api/api'
 import { ApiClientError } from '../../shared/api/client'
-import type { AdminUser, TemporaryPasswordData, UserStatus } from '../../shared/contracts/contracts'
+import type { AdminUser, UserStatus } from '../../shared/contracts/contracts'
 import { CopyText } from '../../shared/ui/CopyText'
 import { RequestError } from '../../shared/ui/RequestError'
 import { UserStatusTag } from '../../shared/ui/StatusTag'
@@ -32,9 +32,7 @@ export default function UsersPage() {
   const queryClient = useQueryClient()
   const query = useMemo(() => queryFromParams(params), [params])
   const users = useQuery({ queryKey: ['users', query], queryFn: () => api.users(query), placeholderData: keepPreviousData })
-  const [confirmUser, setConfirmUser] = useState<{ user: AdminUser; action: 'ENABLE' | 'DISABLE' | 'TEMP_PASSWORD' } | null>(null)
-  const [temporary, setTemporary] = useState<{ user: AdminUser; data: TemporaryPasswordData } | null>(null)
-  const [temporaryLoading, setTemporaryLoading] = useState(false)
+  const [confirmUser, setConfirmUser] = useState<{ user: AdminUser; action: 'ENABLE' | 'DISABLE' } | null>(null)
 
   const statusMutation = useMutation({
     mutationFn: ({ user, action }: { user: AdminUser; action: 'ENABLE' | 'DISABLE' }) => api.updateUserStatus(user.id, action === 'ENABLE' ? 'ACTIVE' : 'DISABLED'),
@@ -57,19 +55,8 @@ export default function UsersPage() {
     setParams(next)
   }
 
-  const runConfirmedAction = async () => {
+  const runConfirmedAction = () => {
     if (!confirmUser) return
-    if (confirmUser.action === 'TEMP_PASSWORD') {
-      setTemporaryLoading(true)
-      try {
-        const data = await api.createTemporaryPassword(confirmUser.user.id)
-        setTemporary({ user: confirmUser.user, data })
-      } catch (error) {
-        const apiError = error instanceof ApiClientError ? error : null
-        void message.error(apiError?.status === 429 ? `操作过于频繁${apiError.retryAfter ? `，请等待 ${apiError.retryAfter} 秒` : ''}` : apiError?.message ?? '临时密码创建失败')
-      } finally { setTemporaryLoading(false); setConfirmUser(null) }
-      return
-    }
     statusMutation.mutate({ user: confirmUser.user, action: confirmUser.action })
     setConfirmUser(null)
   }
@@ -80,7 +67,7 @@ export default function UsersPage() {
     { title: '引导', dataIndex: 'onboardingCompleted', width: 84, render: (value: boolean) => <Tag color={value ? 'success' : 'default'}>{value ? '已完成' : '未完成'}</Tag> },
     { title: '注册时间', dataIndex: 'createdAt', width: 150, render: (value: string) => dayjs(value).format('YYYY-MM-DD HH:mm') },
     { title: '最后登录', dataIndex: 'lastLoginAt', width: 150, render: (value: string | null) => value ? dayjs(value).format('YYYY-MM-DD HH:mm') : '从未登录' },
-    { title: '操作', key: 'actions', width: 190, render: (_, user) => <Space>{getUserActions(user.status).map((action) => <Button key={action} size="small" type={action === 'DISABLE' ? 'link' : 'default'} danger={action === 'DISABLE'} icon={action === 'TEMP_PASSWORD' ? <KeyOutlined /> : undefined} onClick={() => setConfirmUser({ user, action })}>{action === 'ENABLE' ? '启用' : action === 'DISABLE' ? '禁用' : '临时密码'}</Button>)}</Space> },
+    { title: '操作', key: 'actions', width: 190, render: (_, user) => <Space>{getUserActions(user.status).map((action) => <Button key={action} size="small" type={action === 'DISABLE' ? 'link' : 'default'} danger={action === 'DISABLE'} onClick={() => setConfirmUser({ user, action })}>{action === 'ENABLE' ? '启用' : '禁用'}</Button>)}</Space> },
   ]
 
   if (users.isError && !users.data) return <RequestError error={users.error} onRetry={() => void users.refetch()} />
@@ -98,15 +85,9 @@ export default function UsersPage() {
       <Card>
         <Table<AdminUser> rowKey="id" loading={users.isPending || users.isFetching} dataSource={users.data?.items ?? []} columns={columns} scroll={{ x: 988 }} pagination={{ current: (users.data?.page ?? 0) + 1, pageSize: users.data?.size ?? 20, total: users.data?.totalElements ?? 0, showSizeChanger: true, pageSizeOptions: [20, 50, 100], showTotal: (total) => `共 ${total} 位用户`, onChange: (page, size) => { const next = new URLSearchParams(params); next.set('page', String(page - 1)); next.set('size', String(size)); setParams(next) } }} />
       </Card>
-      <Modal open={Boolean(confirmUser)} title={confirmUser?.action === 'TEMP_PASSWORD' ? '生成一次性临时密码' : confirmUser?.action === 'DISABLE' ? '确认禁用用户' : '确认启用用户'} confirmLoading={statusMutation.isPending || temporaryLoading} okButtonProps={{ danger: confirmUser?.action === 'DISABLE' }} onOk={() => void runConfirmedAction()} onCancel={() => setConfirmUser(null)} okText="确认" cancelText="取消">
+      <Modal open={Boolean(confirmUser)} title={confirmUser?.action === 'DISABLE' ? '确认禁用用户' : '确认启用用户'} confirmLoading={statusMutation.isPending} okButtonProps={{ danger: confirmUser?.action === 'DISABLE' }} onOk={runConfirmedAction} onCancel={() => setConfirmUser(null)} okText="确认" cancelText="取消">
         <Typography.Paragraph>目标账号：<Typography.Text strong>{confirmUser?.user.nickname}</Typography.Text><br />{confirmUser?.user.id}</Typography.Paragraph>
-        <Typography.Paragraph type="secondary">{confirmUser?.action === 'DISABLE' ? '禁用后，该用户现有会话将立即失效。' : confirmUser?.action === 'TEMP_PASSWORD' ? '旧密码和旧会话将失效，临时密码只展示一次。' : '启用后，用户可以重新登录。'}</Typography.Paragraph>
-      </Modal>
-      <Modal open={Boolean(temporary)} title="一次性临时密码" footer={<Button type="primary" onClick={() => setTemporary(null)}>我已保存，关闭</Button>} closable={false} mask={{ closable: false }}>
-        <Alert type="warning" showIcon title="密码关闭后无法再次查看，请通过安全渠道交给用户。" />
-        <div className="temporary-password"><CopyText value={temporary?.data.temporaryPassword ?? ''} display={temporary?.data.temporaryPassword} /></div>
-        <Typography.Paragraph>目标账号：{temporary?.user.email}</Typography.Paragraph>
-        <Typography.Paragraph>失效时间：{temporary ? dayjs(temporary.data.expiresAt).format('YYYY-MM-DD HH:mm:ss') : ''}</Typography.Paragraph>
+        <Typography.Paragraph type="secondary">{confirmUser?.action === 'DISABLE' ? '禁用后，该用户现有会话将立即失效。' : '启用后，用户可以重新使用微信登录。'}</Typography.Paragraph>
       </Modal>
     </Space>
   )

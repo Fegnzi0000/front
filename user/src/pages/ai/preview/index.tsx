@@ -48,7 +48,7 @@ export default function AiPreviewPage() {
       <View className='card gold-card'>
         <Text className='action-title'>AI 推荐仅供日常饮食参考</Text>
         <Text className='action-note'>
-          过敏、禁忌和健康信息不会在第一阶段用于自动判断；接入 AI
+          饮食禁忌和口味偏好不会在第一阶段用于自动判断；接入 AI
           前还需完成接口冻结、内容安全和隐私披露。
         </Text>
       </View>

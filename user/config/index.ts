@@ -9,9 +9,12 @@ export default defineConfig<'vite'>(async (merge) => {
   const mode = process.env.NODE_ENV || 'development'
   // Taro 配置在 Vite 环境文件加载之前执行，需在此显式读取本机 .env.local。
   const environment = loadEnv(mode, process.cwd(), '')
-  const apiBaseUrl = environment.TARO_APP_API_BASE_URL
-    || process.env.TARO_APP_API_BASE_URL
-    || 'http://127.0.0.1:8080/api/v1'
+  const configuredApiBaseUrl = process.env.TARO_APP_API_BASE_URL
+    || environment.TARO_APP_API_BASE_URL
+  if (mode === 'production' && (!configuredApiBaseUrl || !configuredApiBaseUrl.startsWith('https://'))) {
+    throw new Error('微信小程序生产构建必须设置 HTTPS TARO_APP_API_BASE_URL')
+  }
+  const apiBaseUrl = configuredApiBaseUrl || 'http://127.0.0.1:8080/api/v1'
 
   const baseConfig: UserConfigExport<'vite'> = {
     projectName: 'frontend',

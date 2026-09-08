@@ -1,6 +1,6 @@
 # 独立静态站点部署
 
-执行 `npm.cmd run build` 后部署 `dist` 目录。生产环境要求：
+先设置 `VITE_API_BASE_URL=https://<api-domain>/api/v1`，再执行 `npm.cmd run build` 并部署 `dist` 目录。缺少 HTTPS API 地址时生产构建会失败。生产环境要求：
 
 1. 使用 HTTPS 和独立管理员域名。
 2. 未命中静态文件的路径回退到 `/index.html`，支持 BrowserRouter 刷新。

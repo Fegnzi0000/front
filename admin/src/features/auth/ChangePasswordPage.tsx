@@ -28,7 +28,7 @@ export default function ChangePasswordPage() {
         <Typography.Paragraph type="secondary">完成修改前不能访问管理数据。</Typography.Paragraph>
         {error && <Alert type="error" title={error} showIcon className="form-alert" />}
         <Form<PasswordForm> layout="vertical" onFinish={(values) => { void submit(values) }} requiredMark={false}>
-          <Form.Item label="当前临时密码" name="currentPassword" rules={[{ required: true }, { pattern: /^[A-Za-z0-9_]{6,20}$/ }]}><Input.Password /></Form.Item>
+          <Form.Item label="当前密码" name="currentPassword" rules={[{ required: true }, { pattern: /^[A-Za-z0-9_]{6,20}$/ }]}><Input.Password /></Form.Item>
           <Form.Item label="新密码" name="newPassword" rules={[{ required: true }, { pattern: /^[A-Za-z0-9_]{6,20}$/, message: '密码为 6–20 位字母、数字或下划线' }]}><Input.Password /></Form.Item>
           <Form.Item label="确认新密码" name="confirmNewPassword" dependencies={['newPassword']} rules={[{ required: true }, ({ getFieldValue }) => ({ validator(_, value) { return !value || getFieldValue('newPassword') === value ? Promise.resolve() : Promise.reject(new Error('两次输入的密码不一致')) } })]}><Input.Password /></Form.Item>
           <Button type="primary" htmlType="submit" loading={loading} block>确认修改</Button>

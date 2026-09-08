@@ -9,7 +9,7 @@ import Taro from '@tarojs/taro'
 import { shouldAttemptTokenRefresh } from '../domain/core'
 import { LEGAL_VERSION } from '../domain/legal'
 export type LoginConsent = { accepted: boolean; termsVersion: string; privacyVersion: string; ageBand: 'AGE_14_17' | 'ADULT' }
-export type ConsentStatus = { current: boolean; ageBand: string | null; medicalAllowed: boolean }
+export type ConsentStatus = { current: boolean; ageBand: string | null }
 
 const DEFAULT_API_BASE_URL = 'http://127.0.0.1:8080/api/v1'
 const API_BASE_URL = process.env.TARO_APP_API_BASE_URL || DEFAULT_API_BASE_URL
@@ -18,7 +18,7 @@ const REFRESH_TOKEN_KEY = 'ai-ganfan.refresh-token'
 
 export type MealType = 'BREAKFAST' | 'LUNCH' | 'AFTERNOON_TEA' | 'DINNER' | 'LATE_NIGHT'
 export type DietSource = 'MANUAL' | 'SLOT'
-export type PreferenceKind = 'TASTE' | 'MEDICAL_ALLERGY' | 'DIETARY_RESTRICTION' | 'DISLIKE'
+export type PreferenceKind = 'TASTE' | 'DIETARY_RESTRICTION' | 'DISLIKE'
 export type PreferenceItem = { type: 'PRESET' | 'CUSTOM'; value: string; label?: string }
 
 export interface ApiEnvelope<T> { code: 'OK'; message: string; data: T; requestId: string; timestamp: string }
@@ -34,7 +34,7 @@ export interface FoodSnapshot { foodOptionId: string; name: string; category: st
 export interface DietRecord { id: string; foodOptionId: string | null; foodName: string; category: string | null; tags: string[]; actualPrice: string; mealType: MealType; eatenAt: string; businessDate: string; source: DietSource; createdAt: string; updatedAt: string }
 export interface PageData<T> { items: T[]; page: number; size: number; totalElements: number; totalPages: number }
 /** 所有金额字段均按 API 契约使用固定两位十进制字符串。 */
-export interface Preferences { budgetEnabled: boolean; dailyBudget: string | null; medicalAllergies: PreferenceItem[]; dietaryRestrictions: PreferenceItem[]; dislikes: PreferenceItem[]; tastePreferences: PreferenceItem[] }
+export interface Preferences { budgetEnabled: boolean; dailyBudget: string | null; dietaryRestrictions: PreferenceItem[]; dislikes: PreferenceItem[]; tastePreferences: PreferenceItem[] }
 export interface SlotSpin { spinId: string; selectedFood: FoodSnapshot; expiresAt: string }
 
 let sessionRedirecting = false
@@ -124,10 +124,9 @@ export const api = {
     const data = await request<AuthData>('POST', '/auth/wechat/mini-program/login', { code, ...consent }); saveTokens(data); return data
   },
   consent: () => request<ConsentStatus>('GET', '/users/me/consent'),
-  medicalConsent: (accepted: boolean) => request<ConsentStatus>('PUT', '/users/me/consent/medical', { accepted, version: LEGAL_VERSION }),
   logout: async () => { const { refreshToken } = tokens(); try { if (refreshToken) await request<Record<string, never>>('POST', '/auth/logout', { refreshToken }) } finally { clearTokens() } },
   me: () => request<User>('GET', '/users/me'),
-  submitOnboarding: (data: { nickname: string | null; budgetEnabled: boolean; dailyBudget: string | null; medicalAllergies: PreferenceItem[]; dietaryRestrictions: PreferenceItem[]; dislikes: PreferenceItem[]; tastePreferences: PreferenceItem[] }) => request<User>('PUT', '/users/me/onboarding', data),
+  submitOnboarding: (data: { nickname: string | null; budgetEnabled: boolean; dailyBudget: string | null; dietaryRestrictions: PreferenceItem[]; dislikes: PreferenceItem[]; tastePreferences: PreferenceItem[] }) => request<User>('PUT', '/users/me/onboarding', data),
   updateProfile: (nickname: string) => request<User>('PATCH', '/users/me/profile', { nickname }),
   cancelAccount: (code: string) => request<Record<string, never>>('POST', '/users/me/cancel-wechat', { code, confirmation: 'CANCEL' }),
   preferenceOptions: () => request<Record<PreferenceKind, PreferenceItem[]>>('GET', '/preferences/options'),

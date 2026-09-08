@@ -40,15 +40,20 @@ export default function LoginPage() {
     <Text className='slogan'>饮食选择参考，由你决定</Text>
     <View className='login-card'>
       <Text className='wechat-note'>首次微信登录将创建账号。不会获取手机号或真实头像。</Text>
-      <Picker mode='selector' range={ages} onChange={e => { setAge(Number(e.detail.value)); setAgreed(false) }} disabled={submitting}>
-        <View className='input'>{age < 0 ? '请选择你的年龄段' : ages[age]}</View>
-      </Picker>
-      {age === 1 && <Text className='wechat-note'>请与监护人共同阅读协议，在指导下使用；暂不开放医疗过敏信息录入。</Text>}
+      <View className='age-field'>
+        <Text className='age-label'>年龄确认</Text>
+        <Picker mode='selector' range={ages} onChange={e => { setAge(Number(e.detail.value)); setAgreed(false) }} disabled={submitting}>
+          <View className={`age-selector ${age < 0 ? 'age-selector-placeholder' : ''}`}>
+            <Text>{age < 0 ? '请选择年龄段' : ages[age]}</Text><Text className='age-selector-arrow'>选择 ›</Text>
+          </View>
+        </Picker>
+      </View>
+      {age === 1 && <Text className='wechat-note'>请与监护人共同阅读协议，在指导下使用。</Text>}
       {age === 0 && <Text className='error'>暂不开放登录；误注册或其他问题请联系我们。</Text>}
       <View className='login-links'><Text onClick={() => open('terms')}>用户协议</Text><Text onClick={() => open('privacy')}>隐私政策</Text></View>
       <CheckboxGroup onChange={e => setAgreed(e.detail.value.includes('agree'))}><View><Checkbox value='agree' checked={agreed} disabled={submitting} />我已阅读并同意用户协议和隐私政策</View></CheckboxGroup>
       <Button className='primary-button' loading={submitting} disabled={submitting || !agreed || age < 1} onClick={login}>同意并微信登录</Button>
-      <Text className='wechat-note'>不同意则不登录。医疗过敏信息另行征求可选同意。</Text>
+      <Text className='wechat-note'>不同意则不登录。</Text>
       {error && <Text className='error'>{error}</Text>}
       <Text selectable className='wechat-note'>提供者：唯一 · 联系邮箱：{CONTACT_EMAIL}</Text>
     </View>
