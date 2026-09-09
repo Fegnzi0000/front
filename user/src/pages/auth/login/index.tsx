@@ -2,7 +2,7 @@ import { Button, Checkbox, CheckboxGroup, Picker, Text, View } from '@tarojs/com
 import Taro from '@tarojs/taro'
 import { useRef, useState } from 'react'
 import { resolveLoginNextStep } from '../../../domain/core'
-import { LEGAL_VERSION, CONTACT_EMAIL } from '../../../domain/legal'
+import { LEGAL_VERSION } from '../../../domain/legal'
 import { api, clearTokens, type LoginConsent } from '../../../services/api'
 import './index.scss'
 
@@ -55,7 +55,6 @@ export default function LoginPage() {
       <Button className='primary-button' loading={submitting} disabled={submitting || !agreed || age < 1} onClick={login}>同意并微信登录</Button>
       <Text className='wechat-note'>不同意则不登录。</Text>
       {error && <Text className='error'>{error}</Text>}
-      <Text selectable className='wechat-note'>提供者：唯一 · 联系邮箱：{CONTACT_EMAIL}</Text>
     </View>
   </View>
 }
